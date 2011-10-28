@@ -3,10 +3,10 @@
   <PropertyGroup>
     <ProjectGuid>{48f3d73f-3a8b-407e-8b6d-1db6a8729d54}</ProjectGuid>
     <MainSource>pRoToMaPhi.dpr</MainSource>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-    <DCC_DependencyCheckOutputName>pRoToMaPhi.exe</DCC_DependencyCheckOutputName>
+    <DCC_DependencyCheckOutputName>..\release\pRoToMaPhi.exe</DCC_DependencyCheckOutputName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Version>7.0</Version>
@@ -14,6 +14,7 @@
     <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
     <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
     <DCC_Define>RELEASE</DCC_Define>
+    <DCC_ExeOutput>../release/</DCC_ExeOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
@@ -30,7 +31,7 @@
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
     <RcCompile Include="..\universal\Karten.rc">
-      <Form>'..\universal\Karten.res'</Form>
+      <Form>..\universal\Karten.res</Form>
     </RcCompile>
     <DCCReference Include="..\universal\uAblagestapel.pas" />
     <DCCReference Include="..\universal\uGlobalTypes.pas" />

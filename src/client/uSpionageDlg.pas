@@ -3,7 +3,7 @@ unit uSpionageDlg;
 interface
 
 uses
-  Windows, Forms, StdCtrls, ExtCtrls, SysUtils, Graphics, Dialogs, Controls, Classes,
+  Forms, StdCtrls, ExtCtrls, SysUtils, Graphics, Dialogs, Controls, Classes,
   uKarte, uSpieler, uVerwaltung;
 
 type
@@ -20,6 +20,7 @@ type
     Label3: TLabel;
     BehaltenBtn: TButton;
     constructor Create(AOwner: TComponent; AVerwaltung: TVerwaltung); reintroduce;
+    destructor Destroy; override;
     procedure SpionageBtnClick(Sender: TObject);
     procedure SpielerComboBox1Change(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -52,11 +53,18 @@ begin
   TmpListe := TList.Create;
 end;
 
+destructor TSpionageDlg.Destroy;
+begin
+    TmpListe.Free;
+    inherited Destroy;
+end;
+
 procedure TSpionageDlg.SpielerAuflisten(MySelf: TSpieler);
 var i: Integer;
 begin
   AbgebenPanel.Visible := false;
   SpionagePanel.Visible := true;
+  SpionagePanel.BringToFront; // sonst wids komischerweise beim 2. Aufruf nicht angezeigt
   SpielerComboBox1.Clear;
   SpielerComboBox2.Clear;
   TmpListe.Clear;

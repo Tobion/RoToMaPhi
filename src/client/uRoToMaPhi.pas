@@ -181,6 +181,7 @@ end;
 
 procedure TRoToMaPhiForm.FormDestroy(Sender: TObject);
 begin
+  Reset;
   lCS.Free;
   DataStream.Free;
   Verwaltung.Free;
@@ -333,20 +334,12 @@ end;
 
 procedure TRoToMaPhiForm.AusloggenMenuClick(Sender: TObject);
 begin
-Reset;
+  Reset;
 end;
 
 procedure TRoToMaPhiForm.BeendenMenuClick(Sender: TObject);
 begin
-Reset;
-EinloggenDlg.Free;
-WunschDlg.Free;
-SperrDlg.Free;
-DataStream.Free;
-TauschDlg.Free;
-SpionageDlg.Free;
-Verwaltung.Free;
-Self.Close;
+  Self.Close;
 end;
 
 procedure TRoToMaPhiForm.HilfeMenuClick(Sender: TObject);
@@ -761,13 +754,7 @@ begin
     try
       PictureStream.CopyFrom(AMessageBuffer, AMessageBuffer.Size - AMessageBuffer.Position);
       PictureStream.Position := 0;
-      if FileExt = 'bmp' then
-        Img := TBitmap.Create
-      else if FileExt = 'jpg' then
-        Img := TJPEGImage.Create
-      else if FileExt = 'gif' then
-        Img := TGIFImage.Create
-      else Img := TBitmap.Create;
+      Img := CreateGraphic(FileExt);
       try
         Img.LoadFromStream(PictureStream);
         PlayerInfoDlg.SetImage(Img);
@@ -979,7 +966,7 @@ var Header: THeader;
 begin
   FileExt := ExtractFileExt(MyPictureFile);
   Delete(FileExt, 1, 1); // remove dot
-  if (FileExt <> 'jpeg') and (FileExt <> 'jpg') and (FileExt <> 'gif') and (FileExt <> 'bmp') then
+  if not IsSupportedImg(FileExt) then
   begin
     Application.MessageBox(PChar('Unbekannte Dateiendung.'), 'Fehler' , MB_ICONERROR);
   end

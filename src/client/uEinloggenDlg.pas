@@ -3,8 +3,8 @@ unit uEinloggenDlg;
 interface
 
 uses
-  Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls, Buttons,
-  ExtCtrls, Spin, Dialogs, ExtDlgs;
+  SysUtils, Classes, Graphics, Forms, Controls, StdCtrls, Buttons,
+  ExtCtrls, Spin;
 
 type
   TEinloggenDlg = class(TForm)

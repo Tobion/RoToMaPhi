@@ -3,8 +3,7 @@ unit uPlayerInfoDlg;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls;
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls;
 
 type
   TPlayerInfoDlg = class(TForm)

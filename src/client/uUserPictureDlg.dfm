@@ -13,6 +13,7 @@ object UserPictureDlg: TUserPictureDlg
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object UserPictureLabelEdit: TLabeledEdit
@@ -74,8 +75,10 @@ object UserPictureDlg: TUserPictureDlg
   end
   object UserPictureDialog: TOpenPictureDialog
     Filter = 
-      'Image File (.jpg, .jpeg, .gif, .bmp)|*.jpg;*.jpeg;*.gif;*.bmp|JP' +
-      'EG|*.jpg;*.jpeg|GIF|*.gif|BMP|*.bmp'
+      'Image File (.png, .jpg, .jpeg, .gif, .bmp, .ico)|*.png;*.jpg;*.j' +
+      'peg;*.gif;*.bmp;*.ico|Portable Network Graphics|*.png|JPEG|*.jpg' +
+      ';*.jpeg|Graphics Interchange Format|*.gif|Bitmap|*.bmp|Symbol|*.' +
+      'ico'
     Left = 208
   end
 end

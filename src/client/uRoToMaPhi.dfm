@@ -27,10 +27,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 9
-    ExplicitTop = 9
-    ExplicitWidth = 704
-    ExplicitHeight = 560
     object BottomContainerPannel: TPanel
       Left = 0
       Top = 455
@@ -39,8 +35,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 465
-      ExplicitHeight = 96
       object SpielerListView: TListView
         Left = 512
         Top = 0
@@ -65,9 +59,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
         TabOrder = 0
         ViewStyle = vsReport
         OnDblClick = SpielerListViewDblClick
-        ExplicitLeft = 494
-        ExplicitTop = 9
-        ExplicitHeight = 69
       end
       object ChatContainerPanel: TPanel
         Left = 0
@@ -77,9 +68,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 9
-        ExplicitWidth = 494
-        ExplicitHeight = 69
         object MsgPanel: TPanel
           Left = 0
           Top = 81
@@ -88,8 +76,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
           Align = alBottom
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitTop = 44
-          ExplicitWidth = 494
           DesignSize = (
             512
             25)
@@ -113,7 +99,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
             MaxLength = 255
             TabOrder = 0
             OnKeyPress = MsgEditKeyPress
-            ExplicitWidth = 443
           end
         end
         object ChatRichEdit: TRichEdit
@@ -125,8 +110,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
           ReadOnly = True
           ScrollBars = ssVertical
           TabOrder = 1
-          ExplicitWidth = 494
-          ExplicitHeight = 44
         end
       end
     end
@@ -142,7 +125,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
       Padding.Right = 25
       ParentBackground = False
       TabOrder = 1
-      ExplicitTop = 249
       object UserScrollBox: TScrollBox
         Left = 25
         Top = 17
@@ -152,7 +134,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
         BorderStyle = bsNone
         TabOrder = 0
         OnResize = UserScrollBoxResize
-        ExplicitHeight = 199
       end
       object TopKartenPanel: TPanel
         Left = 25
@@ -171,8 +152,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
         ParentColor = True
         ParentFont = False
         TabOrder = 1
-        ExplicitLeft = 0
-        ExplicitWidth = 704
       end
     end
     object StapelPanel: TPanel
@@ -240,7 +219,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
         Anchors = [akTop]
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 24
         DesignSize = (
           657
           249)
@@ -476,8 +454,6 @@ object RoToMaPhiForm: TRoToMaPhiForm
       Height = 17
       Panels = <>
       SimplePanel = True
-      ExplicitTop = 543
-      ExplicitWidth = 704
     end
   end
   object MainMenu: TMainMenu

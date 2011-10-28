@@ -3,7 +3,7 @@ unit uSperrDlg;
 interface
 
 uses
-  Windows, Forms, StdCtrls, ExtCtrls, Controls, Classes;
+  Forms, StdCtrls, ExtCtrls, Controls, Classes;
 
 type
   TSperrDlg = class(TForm)

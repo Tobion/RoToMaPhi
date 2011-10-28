@@ -3,7 +3,7 @@ unit uTauschDlg;
 interface
 
 uses
-  Windows, Forms, StdCtrls, ExtCtrls, Controls, Classes, Dialogs, uSpieler, uVerwaltung;
+  Forms, StdCtrls, ExtCtrls, Controls, Classes, Dialogs, uSpieler, uVerwaltung;
 
 type
   TTauschDlg = class(TForm)

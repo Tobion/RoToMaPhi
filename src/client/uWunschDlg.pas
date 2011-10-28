@@ -3,7 +3,7 @@ unit uWunschDlg;
 interface
 
 uses
-  Windows, Forms, StdCtrls, ExtCtrls, Controls, Classes, uGlobalTypes;
+  Forms, StdCtrls, ExtCtrls, Controls, Classes, uGlobalTypes;
 
 type
   TWunschDlg = class(TForm)

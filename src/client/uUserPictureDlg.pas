@@ -3,8 +3,7 @@ unit uUserPictureDlg;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ExtDlgs, JPEG, GIFImg;
+  SysUtils, Classes, Controls, Forms, StdCtrls, ExtCtrls, ExtDlgs, Dialogs, Graphics;
 
 type
   TUserPictureDlg = class(TForm)
@@ -16,6 +15,7 @@ type
     DeleteBtn: TButton;
     procedure UserPictureButtonClick(Sender: TObject);
     procedure UserPictureLabelEditChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
   public
     function GetPicture: String;
@@ -27,6 +27,11 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TUserPictureDlg.FormCreate(Sender: TObject);
+begin
+  //UserPictureDialog.Filter := GraphicFilter(TGraphic);
+end;
 
 function TUserPictureDlg.GetPicture: String;
 begin
