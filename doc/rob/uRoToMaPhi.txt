@@ -1,0 +1,226 @@
+unit uRoToMaPhi;
+
+
+
+
+
+  ZiehstapelLabel.Caption := Format('Karten:  %d', [GetZiehstapelKartenAnzahl]);
+  AblagestapelLabel.Caption := Format('Karten:  %d', [GetAblagestapelKartenAnzahl]);
+  case GetWunschFarbe of
+    Schwarz: WunschfarbePanel.Brush.Color := clBlack;
+    Rot: WunschfarbePanel.Brush.Color := clRed;
+    Gruen: WunschfarbePanel.Brush.Color := clGreen;
+    Blau: WunschfarbePanel.Brush.Color := clBlue;
+    else WunschfarbePanel.Brush.Color := clCream;
+  end;
+  if (GetSperre <> 0) then
+    begin
+    case GetSperre of
+      1:   Sperre := 'Sklaven';
+      2:   Sperre := 'Bettler';
+      3:   Sperre := 'Bauern';
+      4:   Sperre := 'Handwerker';
+      5:   Sperre := 'Händler';
+      6:   Sperre := 'Adlige';
+      7:   Sperre := 'Hellseher';
+      8:   Sperre := 'Söldner';
+      9:   Sperre := 'Ritter';
+      10:  Sperre := 'Diplomaten';
+      11:  Sperre := 'Magier';
+      13:  Sperre := 'Mauern';
+      14:  Sperre := 'Ereignisse';
+      196: Sperre := 'Schwarz';
+      197: Sperre := 'Rot';
+      198: Sperre := 'Grün';
+      199: Sperre := 'Blau';
+      else Sperre := '???';
+      end;
+    SperrLabel.Caption := Format('Gesperrt:     %s', [Sperre]);
+    SperrAnzLabel.Caption := Format('(%d x)', [GetSperrIndex]);
+    end
+    else
+      begin
+      SperrLabel.Caption := 'Gesperrt:';
+      SperrAnzLabel.Caption := '';
+      end;
+  if (GetZiehkartenAnzahl > 0) then
+    ZuZiehenLabel.Caption := Format('Zu Ziehen:     %d Karten', [GetZiehkartenAnzahl])
+    else ZuZiehenLabel.Caption := 'Zu Ziehen:';
+  end;
+
+
+
+
+
+  Msg_Server_Sperren:
+    begin
+    with SperrDlg do
+      begin
+      ShowModal;
+      Net_SendSperren(GetSperre);
+      end;
+    Result := true;
+    end;
+  Msg_User_Sperren:
+    begin
+    Help_SetSperren(AMessageData, Spieler);
+    Result := true;
+    end;
+  Msg_Server_Tauschen:
+     begin
+     with TauschDlg do
+       begin
+       ShowModal;
+       Net_SendTauschen(GetSpieler1,GetSpieler2);
+       end;
+     Result := true;
+     end;
+  Msg_User_Tauschen:
+     begin
+     Help_SetTauschen(AMessageData, Spieler);
+     Result := true;
+     end;
+  Msg_Server_Spionage:
+     begin
+     with SpionageDlg do
+       begin
+       SpielerAuflisten(MySelf);
+       ShowModal;
+       if (ModalResult = mrOk) then
+         Net_SendSpionage(GetIDSpielerFrom,GetIDSpielerTo,GetSpioKartenID)
+       else if (ModalResult = mrYes) then
+         Net_SendSpionage(GetIDSpielerFrom,MySelf.ID,GetSpioKartenID)
+       end;
+     Result := true;
+     end;
+  Msg_User_Spionage:
+     begin
+     Help_SetSpionage(AMessageData, Spieler);
+     Result := true;
+     end;
+  Msg_Server_KartenHalbieren:
+    begin
+    Help_SetKartenHalbieren(AMessageData, Spieler);
+    Result := true;
+    end;
+
+
+
+
+
+procedure TRoToMaPhiForm.Help_SetSperren(AMessageBuffer: TStream; const Spieler: TSpieler);
+var Sperre: Byte;
+begin
+AMessageBuffer.ReadBuffer(Sperre, SizeOf(Sperre));
+Verwaltung.SetSperre(Sperre);
+case Sperre of
+  1:   InfoLabel.Caption := Spieler.Name + ' hat Sklaven gesperrt.';
+  2:   InfoLabel.Caption := Spieler.Name + ' hat Bettler gesperrt.';
+  3:   InfoLabel.Caption := Spieler.Name + ' hat Bauern gesperrt.';
+  4:   InfoLabel.Caption := Spieler.Name + ' hat Handwerker gesperrt.';
+  5:   InfoLabel.Caption := Spieler.Name + ' hat Händler gesperrt.';
+  6:   InfoLabel.Caption := Spieler.Name + ' hat Adlige gesperrt.';
+  7:   InfoLabel.Caption := Spieler.Name + ' hat Hellseher gesperrt.';
+  8:   InfoLabel.Caption := Spieler.Name + ' hat Söldner gesperrt.';
+  9:   InfoLabel.Caption := Spieler.Name + ' hat Ritter gesperrt.';
+  10:  InfoLabel.Caption := Spieler.Name + ' hat Diplomaten gesperrt.';
+  11:  InfoLabel.Caption := Spieler.Name + ' hat Magier gesperrt.';
+  13:  InfoLabel.Caption := Spieler.Name + ' hat Mauern gesperrt.';
+  14:  InfoLabel.Caption := Spieler.Name + ' hat Ereignisse gesperrt.';
+  196: InfoLabel.Caption := Spieler.Name + ' hat schwarz gesperrt.';
+  197: InfoLabel.Caption := Spieler.Name + ' hat rot gesperrt.';
+  198: InfoLabel.Caption := Spieler.Name + ' hat grün gesperrt.';
+  199: InfoLabel.Caption := Spieler.Name + ' hat blau gesperrt.';
+  end;
+UpdateGUI;
+end;
+
+
+
+
+
+procedure TRoToMaPhiForm.Help_SetTauschen(AMessageBuffer: TStream; const Spieler: TSpieler);
+var ID1, ID2: Longword;
+    TmpSpieler1, TmpSpieler2: TSpieler;
+begin
+AMessageBuffer.ReadBuffer(ID1, SizeOf(ID1));
+AMessageBuffer.ReadBuffer(ID2, SizeOf(ID2));
+TmpSpieler1 := Verwaltung.GetSpieler(ID1);
+TmpSpieler2 := Verwaltung.GetSpieler(ID2);
+Verwaltung.KartenTauschen(TmpSpieler1, TmpSpieler2);
+if (Spieler = TmpSpieler1) then
+  InfoLabel.Caption := Spieler.Name + ' hat mit ' + TmpSpieler2.Name + ' die Karten getauscht.'
+else if (Spieler = TmpSpieler2) then
+  InfoLabel.Caption := Spieler.Name + ' hat mit ' + TmpSpieler1.Name + ' die Karten getauscht.'
+else
+  InfoLabel.Caption := Spieler.Name + ' hat ' + TmpSpieler1.Name + ' und ' + TmpSpieler2.Name + #13#10 + 'die Karten tauschen lassen.';
+UpdateGUI;
+end;
+
+
+
+
+
+procedure TRoToMaPhiForm.Help_SetSpionage(AMessageBuffer: TStream; const Spion: TSpieler);
+var IDSpielerFrom, IDSpielerTo, SpioKartenID: Longword;
+    TmpSpielerFrom, TmpSpielerTo: TSpieler;
+begin
+AMessageBuffer.ReadBuffer(IDSpielerFrom, SizeOf(IDSpielerFrom));
+AMessageBuffer.ReadBuffer(IDSpielerTo, SizeOf(IDSpielerTo));
+AMessageBuffer.ReadBuffer(SpioKartenID, SizeOf(SpioKartenID));
+TmpSpielerFrom := Verwaltung.GetSpieler(IDSpielerFrom);
+TmpSpielerTo := Verwaltung.GetSpieler(IDSpielerTo);
+Verwaltung.Spionage(TmpSpielerFrom, TmpSpielerTo, SpioKartenID);
+if (TmpSpielerTo = Spion) then
+  InfoLabel.Caption := Spion.Name + ' hat ' + TmpSpielerFrom.Name + ' ausspioniert' + #13#10 + 'und die Karte behalten.'
+else if (TmpSpielerFrom = TmpSpielerTo) then
+  InfoLabel.Caption := Spion.Name + ' hat ' + TmpSpielerFrom.Name + ' ausspioniert' + #13#10 + 'und ihm die Karte zurückgegeben.'
+else
+  InfoLabel.Caption := Spion.Name + ' hat ' + TmpSpielerFrom.Name + ' ausspioniert ' + #13#10 + 'und die Karte an ' + TmpSpielerTo.Name + ' weitergegeben.';
+UpdateGUI;
+end;
+
+
+
+
+
+procedure TRoToMaPhiForm.Net_SendSperren(Sperre: Byte);
+var Header: THeader;
+begin
+  Header.MsgID    := Msg_User_Sperren;
+  Header.Size     := SizeOf(Sperre);
+  Header.SenderID := MyUserID;
+  ClientSocket.Socket.SendBuf(Header, SizeOf(THeader));
+  ClientSocket.Socket.SendBuf(Sperre, SizeOf(Sperre));
+end;
+
+
+
+
+
+procedure TRoToMaPhiForm.Net_SendTauschen(ID1, ID2: Longword);
+var Header: THeader;
+begin
+  Header.MsgID    := Msg_User_Tauschen;
+  Header.Size     := SizeOf(ID1) + SizeOf(ID2);
+  Header.SenderID := MyUserID;
+  ClientSocket.Socket.SendBuf(Header, Sizeof(THeader));
+  ClientSocket.Socket.SendBuf(ID1, SizeOf(ID1));
+  ClientSocket.Socket.SendBuf(ID2, SizeOf(ID2));
+end;
+
+
+
+
+
+procedure TRoToMaPhiForm.Net_SendSpionage(IDSpielerFrom, IDSpielerTo, SpioKartenID: Longword);
+var Header: THeader;
+begin
+  Header.MsgID    := Msg_User_Spionage;
+  Header.Size     := SizeOf(IDSpielerFrom) + SizeOf(IDSpielerTo) + SizeOf(SpioKartenID);
+  Header.SenderID := MyUserID;
+  ClientSocket.Socket.SendBuf(Header, Sizeof(THeader));
+  ClientSocket.Socket.SendBuf(IDSpielerFrom, SizeOf(IDSpielerFrom));
+  ClientSocket.Socket.SendBuf(IDSpielerTo, SizeOf(IDSpielerTo));
+  ClientSocket.Socket.SendBuf(SpioKartenID, SizeOf(SpioKartenID));
+end;

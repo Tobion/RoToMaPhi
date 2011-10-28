@@ -1,0 +1,72 @@
+unit uRoToMaPhiServer;
+
+
+
+
+
+  Msg_User_Sperren:
+    begin
+    Help_SetSperren(AMessageData);
+    Net_SendToAll(AMessageData, MsgID, SenderID);
+    Net_SendNextPlayer(Spieler);
+    Result := true;
+    end;
+  Msg_User_Tauschen:
+    begin
+    Help_SetTauschen(AMessageData);
+    Net_SendToAll(AMessageData, MsgID, SenderID);
+    Net_SendNextPlayer(Spieler);
+    Result := true;
+    end;
+  Msg_User_Spionage:
+    begin
+    Help_SetSpionage(AMessageData);
+    Net_SendToAll(AMessageData, MsgID, SenderID);
+    Winner := Verwaltung.GetWinner;
+    if Assigned(Winner) then
+      Net_SendWinner(Winner)
+    else Net_SendNextPlayer(Spieler);
+    Result := true;
+    end;
+
+
+
+
+
+procedure TRoToMaPhiServerForm.Help_SetSperren(AMessageBuffer: TStream);
+var Sperre: Byte;
+begin
+AMessageBuffer.ReadBuffer(Sperre, SizeOf(Sperre));
+Verwaltung.SetSperre(Sperre);
+end;
+
+
+
+
+
+procedure TRoToMaPhiServerForm.Help_SetTauschen(AMessageBuffer: TStream);
+var ID1, ID2: Longword;
+    TmpSpieler1, TmpSpieler2: TSpieler;
+begin
+AMessageBuffer.ReadBuffer(ID1, SizeOf(ID1));
+AMessageBuffer.ReadBuffer(ID2, SizeOf(ID2));
+TmpSpieler1 := Verwaltung.GetSpieler(ID1);
+TmpSpieler2 := Verwaltung.GetSpieler(ID2);
+Verwaltung.KartenTauschen(TmpSpieler1, TmpSpieler2);
+end;
+
+
+
+
+
+procedure TRoToMaPhiServerForm.Help_SetSpionage(AMessageBuffer: TStream);
+var IDSpielerFrom, IDSpielerTo, SpioKartenID: Longword;
+    TmpSpielerFrom, TmpSpielerTo: TSpieler;
+begin
+AMessageBuffer.ReadBuffer(IDSpielerFrom, SizeOf(IDSpielerFrom));
+AMessageBuffer.ReadBuffer(IDSpielerTo, SizeOf(IDSpielerTo));
+AMessageBuffer.ReadBuffer(SpioKartenID, SizeOf(SpioKartenID));
+TmpSpielerFrom := Verwaltung.GetSpieler(IDSpielerFrom);
+TmpSpielerTo := Verwaltung.GetSpieler(IDSpielerTo);
+Verwaltung.Spionage(TmpSpielerFrom, TmpSpielerTo, SpioKartenID);
+end;

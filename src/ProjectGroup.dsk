@@ -1,0 +1,338 @@
+[Closed Files]
+File_0=SourceModule,'E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uKI.pas',0,1,64,14,83,0,0
+File_1=SourceModule,'d:\programme\borland\delphi7\source\vcl\Graphics.pas',0,1,6229,1,6267,0,0
+File_2=SourceModule,'E:\Sources\www.pr0g.net\Alte Projekte\Bitmap Assign Problem\source\forms\uFrmMain.pas',0,1,130,44,168,0,0
+File_3=SourceModule,'E:\Sources\www.pr0g.net\Alte Projekte\Bitmap Assign Problem\source\units\uTBlackAndWhite.pas',0,1,302,15,318,0,0
+File_4=SourceModule,'E:\Sources\Projects\Delphi - Projekt - XMLLib\pj_XMLLibTest_Unit.pas',0,1,1,46,6,1,0
+File_5=SourceModule,'E:\Sources\Projects\Delphi - Projekt - XMLLib\XMLLib.pas',0,1,28,62,92,0,0
+File_6=SourceModule,'d:\programme\borland\delphi5\source\vcl\Graphics.pas',0,1,817,80,836,0,0
+File_7=SourceModule,'E:\Sources\Projects\Delphi - Projekt - XMLLib\XMLLib.todo',0,1,1,1,1,0,0
+File_8=SourceModule,'d:\programme\borland\delphi5\source\vcl\Classes.pas',0,1,485,1,508,0,0
+File_9=SourceModule,'d:\programme\borland\delphi5\source\rtl\Sys\system.pas',0,1,3501,1,3524,0,0
+
+[Modules]
+Module0=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\uRoToMaPhi.pas
+Module1=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uRoToMaPhiServer.pas
+Module2=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\uWunschDlg.pas
+Module3=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\pRoToMaPhi.dpr
+Module4=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uVerwaltung.pas
+Module5=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\pRoToMaPhiServer.dpr
+Module6=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uProtokoll.pas
+Module7=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\universal\uGlobalTypes.pas
+Module8=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\universal\uKarte.pas
+Count=9
+EditWindowCount=1
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\uRoToMaPhi.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uRoToMaPhiServer.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\uWunschDlg.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\pRoToMaPhi.dpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+SymbolFile=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\pRoToMaPhi.dsm
+ModSinceCompile=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uVerwaltung.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\pRoToMaPhiServer.dpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+SymbolFile=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\pRoToMaPhiServer.dsm
+ModSinceCompile=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uProtokoll.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\universal\uGlobalTypes.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\universal\uKarte.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\ProjectGroup.bpg]
+FormState=0
+FormOnTop=0
+
+[EditWindow0]
+ViewCount=9
+CurrentView=6
+View0=0
+View1=1
+View2=2
+View3=3
+View4=4
+View5=5
+View6=6
+View7=7
+View8=8
+CodeExplorer=CodeExplorer@EditWindow0
+MessageView=MessageView@EditWindow0
+Create=1
+Visible=1
+State=2
+Left=200
+Top=143
+Width=1080
+Height=642
+MaxLeft=-4
+MaxTop=111
+MaxWidth=1288
+MaxHeight=885
+ClientWidth=1280
+ClientHeight=851
+LeftPanelSize=191
+LeftPanelClients=CodeExplorer@EditWindow0
+LeftPanelData=0000040000000000EB0200000000000001BF000000000000000100000000EB0200000C000000436F64654578706C6F726572FFFFFFFF
+RightPanelSize=256
+RightPanelClients=ProjectManager
+RightPanelData=000004000000000000000000000000000000000000000000000100000000000000001200000050726F6A6563744D616E61676572466F726DFFFFFFFF
+BottomPanelSize=101
+BottomPanelClients=MessageView@EditWindow0
+BottomPanelData=00000400000000000005000000000000026500000000000000010000000000000000000000000100000000000500000B0000004D65737361676556696577FFFFFFFF
+
+[View0]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\pRoToMaPhiServer.dpr
+CursorX=10
+CursorY=7
+TopLine=1
+LeftCol=1
+
+[View1]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\universal\uKarte.pas
+CursorX=1
+CursorY=102
+TopLine=83
+LeftCol=1
+
+[View2]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uProtokoll.pas
+CursorX=1
+CursorY=178
+TopLine=159
+LeftCol=1
+
+[View3]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uRoToMaPhiServer.pas
+CursorX=7
+CursorY=196
+TopLine=165
+LeftCol=1
+
+[View4]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\server\uVerwaltung.pas
+CursorX=36
+CursorY=365
+TopLine=344
+LeftCol=1
+
+[View5]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\pRoToMaPhi.dpr
+CursorX=40
+CursorY=12
+TopLine=1
+LeftCol=1
+
+[View6]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\uRoToMaPhi.pas
+CursorX=54
+CursorY=366
+TopLine=350
+LeftCol=1
+
+[View7]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\uWunschDlg.pas
+CursorX=1
+CursorY=50
+TopLine=22
+LeftCol=1
+
+[View8]
+Module=E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\universal\uGlobalTypes.pas
+CursorX=1
+CursorY=6
+TopLine=1
+LeftCol=1
+
+[Watches]
+Count=0
+
+[Breakpoints]
+Count=1
+Breakpoint0='E:\Sources\www.muetze1.de\Tubo - RoToMaPhi11\src\client\uRoToMaPhi.pas',397,'TmpStream.Size = 0',0,1,'',1,0,0,'',1,'','',''
+
+[AddressBreakpoints]
+Count=0
+
+[Main Window]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=0
+Width=1280
+Height=115
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1272
+ClientHeight=81
+
+[ProjectManager]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=12
+Width=256
+Height=735
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=256
+ClientHeight=735
+TBDockHeight=726
+LRDockWidth=256
+Dockable=1
+
+[CPUWindow]
+Create=1
+Visible=0
+State=0
+Left=373
+Top=335
+Width=533
+Height=353
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=525
+ClientHeight=319
+DumpPane=79
+DisassemblyPane=187
+RegisterPane=231
+FlagPane=64
+
+[AlignmentPalette]
+Create=1
+Visible=0
+State=0
+Left=200
+Top=117
+Width=156
+Height=84
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=150
+ClientHeight=60
+
+[PropertyInspector]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=467
+Width=194
+Height=527
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=186
+ClientHeight=501
+TBDockHeight=527
+LRDockWidth=190
+Dockable=1
+SplitPos=102
+ArrangeBy=Name
+SelectedItem=Caption
+ExpandedItems=
+HiddenCategories=
+
+[CallStackWindow]
+Create=1
+Visible=1
+State=0
+Left=711
+Top=431
+Width=590
+Height=478
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=582
+ClientHeight=452
+TBDockHeight=478
+LRDockWidth=590
+Dockable=1
+
+[ObjectTree]
+Create=1
+Visible=0
+State=0
+Left=0
+Top=115
+Width=190
+Height=350
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=182
+ClientHeight=324
+TBDockHeight=350
+LRDockWidth=190
+Dockable=1
+
+[CodeExplorer@EditWindow0]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=12
+Width=191
+Height=735
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=191
+ClientHeight=735
+TBDockHeight=305
+LRDockWidth=191
+Dockable=1
+
+[MessageView@EditWindow0]
+Create=1
+Visible=1
+State=0
+Left=12
+Top=0
+Width=1268
+Height=101
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1268
+ClientHeight=101
+TBDockHeight=101
+LRDockWidth=443
+Dockable=1
+
+[DockHosts]
+DockHostCount=0
+
+[ActiveProject]
+ActiveProject=1
+
