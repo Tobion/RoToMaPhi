@@ -81,17 +81,17 @@ object SpionageDlg: TSpionageDlg
     TabOrder = 1
     Visible = False
     object KarteImage: TImage
-      Left = 41
-      Top = 81
+      Left = 36
+      Top = 35
       Width = 105
       Height = 161
     end
     object Label3: TLabel
-      Left = 33
+      Left = 30
       Top = 9
-      Width = 113
+      Width = 118
       Height = 20
-      Caption = 'Karte geben an:'
+      Caption = 'Spionierte Karte:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -101,7 +101,7 @@ object SpionageDlg: TSpionageDlg
     end
     object SpielerComboBox2: TComboBox
       Left = 17
-      Top = 41
+      Top = 213
       Width = 145
       Height = 22
       Style = csOwnerDrawFixed
@@ -110,7 +110,7 @@ object SpionageDlg: TSpionageDlg
     end
     object OKBtn: TButton
       Left = 17
-      Top = 257
+      Top = 241
       Width = 145
       Height = 25
       Caption = 'Karte geben'
@@ -122,7 +122,7 @@ object SpionageDlg: TSpionageDlg
       Top = 288
       Width = 145
       Height = 25
-      Caption = 'Behalten'
+      Caption = 'Selber behalten'
       TabOrder = 2
       OnClick = BehaltenBtnClick
     end

@@ -1,9 +1,9 @@
 object RoToMaPhiForm: TRoToMaPhiForm
   Left = 166
   Top = 55
-  Width = 730
-  Height = 612
   Caption = 'RoToMaPhi'
+  ClientHeight = 578
+  ClientWidth = 722
   Color = clBtnFace
   Constraints.MinHeight = 612
   Constraints.MinWidth = 690
@@ -16,51 +16,37 @@ object RoToMaPhiForm: TRoToMaPhiForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
-  object UntererRandPanel: TPanel
-    Left = 0
-    Top = 549
-    Width = 722
-    Height = 9
-    Align = alBottom
-    BevelOuter = bvNone
-    Color = clBackground
-    Ctl3D = True
-    ParentCtl3D = False
-    TabOrder = 0
-  end
-  object ObererRandPanel: TPanel
+  object OberflaechePanel: TPanel
     Left = 0
     Top = 0
     Width = 722
-    Height = 9
-    Align = alTop
-    BevelOuter = bvNone
-    Color = clBackground
-    TabOrder = 1
-  end
-  object OberflaechePanel: TPanel
-    Left = 9
-    Top = 9
-    Width = 704
-    Height = 540
+    Height = 578
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 0
+    ExplicitLeft = 9
+    ExplicitTop = 9
+    ExplicitWidth = 704
+    ExplicitHeight = 560
     object BottomContainerPannel: TPanel
       Left = 0
-      Top = 465
-      Width = 704
-      Height = 58
+      Top = 455
+      Width = 722
+      Height = 106
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitTop = 465
+      ExplicitHeight = 96
       object SpielerListView: TListView
-        Left = 494
-        Top = 9
+        Left = 512
+        Top = 0
         Width = 210
-        Height = 49
+        Height = 106
+        Hint = 'Spielerinformationen vom Server abfragen durch Doppelklick.'
         Align = alRight
         Columns = <
           item
@@ -74,30 +60,41 @@ object RoToMaPhiForm: TRoToMaPhiForm
           end>
         ReadOnly = True
         RowSelect = True
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         ViewStyle = vsReport
+        OnDblClick = SpielerListViewDblClick
+        ExplicitLeft = 494
+        ExplicitTop = 9
+        ExplicitHeight = 69
       end
       object ChatContainerPanel: TPanel
         Left = 0
-        Top = 9
-        Width = 494
-        Height = 49
+        Top = 0
+        Width = 512
+        Height = 106
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 9
+        ExplicitWidth = 494
+        ExplicitHeight = 69
         object MsgPanel: TPanel
           Left = 0
-          Top = 24
-          Width = 494
+          Top = 81
+          Width = 512
           Height = 25
           Align = alBottom
           BevelOuter = bvNone
           TabOrder = 0
+          ExplicitTop = 44
+          ExplicitWidth = 494
           DesignSize = (
-            494
+            512
             25)
           object MsgSendenSpeedBtn: TSpeedButton
-            Left = 445
+            Left = 463
             Top = 2
             Width = 48
             Height = 21
@@ -105,130 +102,112 @@ object RoToMaPhiForm: TRoToMaPhiForm
             Caption = 'Senden'
             Flat = True
             OnClick = MsgSendenSpeedBtnClick
+            ExplicitLeft = 445
           end
           object MsgEdit: TEdit
             Left = 0
             Top = 2
-            Width = 443
+            Width = 461
             Height = 21
             Anchors = [akLeft, akRight, akBottom]
             MaxLength = 255
             TabOrder = 0
             OnKeyPress = MsgEditKeyPress
+            ExplicitWidth = 443
           end
         end
         object ChatRichEdit: TRichEdit
           Left = 0
           Top = 0
-          Width = 494
-          Height = 24
+          Width = 512
+          Height = 81
           Align = alClient
           ReadOnly = True
           ScrollBars = ssVertical
           TabOrder = 1
+          ExplicitWidth = 494
+          ExplicitHeight = 44
         end
-      end
-      object ORButtomContainerPanel: TPanel
-        Left = 0
-        Top = 0
-        Width = 704
-        Height = 9
-        Align = alTop
-        BevelOuter = bvNone
-        Color = clBackground
-        TabOrder = 2
       end
     end
     object UserKartenPanel: TPanel
       Left = 0
-      Top = 249
-      Width = 704
-      Height = 216
+      Top = 245
+      Width = 722
+      Height = 210
       Align = alTop
       BevelOuter = bvNone
+      Color = cl3DLight
+      Padding.Left = 25
+      Padding.Right = 25
+      ParentBackground = False
       TabOrder = 1
-      object LeftKartenPanel: TPanel
-        Left = 0
-        Top = 17
-        Width = 32
-        Height = 199
-        Align = alLeft
-        BevelOuter = bvNone
-        Color = cl3DLight
-        TabOrder = 0
-      end
-      object RightKartenPanel: TPanel
-        Left = 673
-        Top = 17
-        Width = 31
-        Height = 199
-        Align = alRight
-        BevelOuter = bvNone
-        Color = cl3DLight
-        TabOrder = 1
-      end
+      ExplicitTop = 249
       object UserScrollBox: TScrollBox
-        Left = 32
+        Left = 25
         Top = 17
-        Width = 641
-        Height = 199
+        Width = 672
+        Height = 193
         Align = alClient
         BorderStyle = bsNone
-        Color = cl3DLight
-        ParentColor = False
-        TabOrder = 2
+        TabOrder = 0
         OnResize = UserScrollBoxResize
+        ExplicitHeight = 199
       end
       object TopKartenPanel: TPanel
-        Left = 0
+        Left = 25
         Top = 0
-        Width = 704
+        Width = 672
         Height = 17
         Align = alTop
         Alignment = taLeftJustify
         BevelOuter = bvNone
         Caption = 'Deine Karten:'
-        Color = cl3DLight
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
+        ParentColor = True
         ParentFont = False
-        TabOrder = 3
+        TabOrder = 1
+        ExplicitLeft = 0
+        ExplicitWidth = 704
       end
     end
     object StapelPanel: TPanel
       Left = 0
       Top = 0
-      Width = 704
-      Height = 249
+      Width = 722
+      Height = 245
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 2
       DesignSize = (
-        704
-        249)
+        722
+        245)
       object BackgroundImage: TImage
         Left = 0
         Top = 0
-        Width = 704
-        Height = 249
+        Width = 722
+        Height = 245
         Align = alClient
         Stretch = True
         OnClick = BackgroundImageClick
+        ExplicitWidth = 704
+        ExplicitHeight = 249
       end
       object AnzNotwendigerSpielerLabel: TLabel
         Left = 0
-        Top = 88
-        Width = 704
+        Top = 16
+        Width = 722
         Height = 33
         Alignment = taCenter
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = '*** Warte auf x weitere Spieler...'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlue
+        Font.Color = clRed
         Font.Height = -24
         Font.Name = 'MS Sans Serif'
         Font.Style = [fsBold]
@@ -238,15 +217,15 @@ object RoToMaPhiForm: TRoToMaPhiForm
       end
       object EinloggenLabel: TLabel
         Left = 0
-        Top = 88
-        Width = 704
-        Height = 33
+        Top = 16
+        Width = 722
+        Height = 41
         Alignment = taCenter
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = '*** Bitte einloggen'
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlue
+        Font.Color = clRed
         Font.Height = -24
         Font.Name = 'MS Sans Serif'
         Font.Style = [fsBold]
@@ -254,13 +233,14 @@ object RoToMaPhiForm: TRoToMaPhiForm
         Transparent = True
       end
       object SpielPanel: TPanel
-        Left = 24
+        Left = 33
         Top = 0
         Width = 657
         Height = 249
         Anchors = [akTop]
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 24
         DesignSize = (
           657
           249)
@@ -286,7 +266,7 @@ object RoToMaPhiForm: TRoToMaPhiForm
         end
         object SpielzustandShape: TShape
           Left = 239
-          Top = 32
+          Top = 37
           Width = 169
           Height = 169
           Anchors = [akTop]
@@ -491,32 +471,14 @@ object RoToMaPhiForm: TRoToMaPhiForm
     end
     object StatusBar: TStatusBar
       Left = 0
-      Top = 523
-      Width = 704
+      Top = 561
+      Width = 722
       Height = 17
       Panels = <>
       SimplePanel = True
+      ExplicitTop = 543
+      ExplicitWidth = 704
     end
-  end
-  object LinkerRandPanel: TPanel
-    Left = 0
-    Top = 9
-    Width = 9
-    Height = 540
-    Align = alLeft
-    BevelOuter = bvNone
-    Color = clBackground
-    TabOrder = 3
-  end
-  object RechterRandPanel: TPanel
-    Left = 713
-    Top = 9
-    Width = 9
-    Height = 540
-    Align = alRight
-    BevelOuter = bvNone
-    Color = clBackground
-    TabOrder = 4
   end
   object MainMenu: TMainMenu
     Left = 8
@@ -551,6 +513,10 @@ object RoToMaPhiForm: TRoToMaPhiForm
       object EinstellungenMenu: TMenuItem
         Caption = 'Einstellungen'
         OnClick = EinstellungenMenuClick
+      end
+      object MeinAvatarMenu: TMenuItem
+        Caption = 'Mein Avatar'
+        OnClick = MeinAvatarMenuClick
       end
     end
   end

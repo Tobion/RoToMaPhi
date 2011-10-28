@@ -2,7 +2,7 @@ program pRoToMaPhiServer;
 
 
 
-{$R '..\universal\Karten.res' '..\universal\Karten.rc'}
+
 
 uses
   Forms,
@@ -15,7 +15,9 @@ uses
   uSpieler in '..\universal\uSpieler.pas',
   uVerwaltung in 'uVerwaltung.pas',
   uKI in 'uKI.pas',
-  uProtokoll in 'uProtokoll.pas';
+  SQLite3 in 'SQLite3.pas',
+  SQLiteTable3 in 'SQLiteTable3.pas',
+  uResourceAccess in '..\universal\uResourceAccess.pas';
 
 {$R *.res}
 

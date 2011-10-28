@@ -4,8 +4,8 @@ object RoToMaPhiServerForm: TRoToMaPhiServerForm
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'RoToMaPhi Server'
-  ClientHeight = 388
-  ClientWidth = 590
+  ClientHeight = 299
+  ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,33 +13,52 @@ object RoToMaPhiServerForm: TRoToMaPhiServerForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poDesigned
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object StatusBar: TStatusBar
     Left = 0
-    Top = 369
-    Width = 590
+    Top = 280
+    Width = 521
     Height = 19
     Panels = <>
     SimplePanel = True
   end
-  object SpielerListView: TListView
-    Left = 380
-    Top = 0
-    Width = 210
-    Height = 369
-    Align = alRight
+  object RegisteredUsersListView: TListView
+    Left = 0
+    Top = 130
+    Width = 521
+    Height = 150
+    Align = alBottom
     Columns = <
       item
-        Caption = 'Spieler'
-        Width = 160
+        AutoSize = True
+        Caption = 'Registrierte Spieler'
       end
       item
-        Alignment = taCenter
-        Caption = 'Karten'
-        Width = 45
+        Alignment = taRightJustify
+        Caption = 'Spiele'
+        Width = 70
+      end
+      item
+        Alignment = taRightJustify
+        Caption = 'Siege'
+        Width = 70
+      end
+      item
+        Caption = 'Letzter Login'
+        Width = 115
+      end
+      item
+        Alignment = taRightJustify
+        Caption = 'Bildgr'#246#223'e in Byte'
+        Width = 100
+      end
+      item
+        Caption = 'Bildtyp'
+        Width = 60
       end>
     ReadOnly = True
     RowSelect = True
@@ -49,8 +68,8 @@ object RoToMaPhiServerForm: TRoToMaPhiServerForm
   object OptionsPanel: TPanel
     Left = 0
     Top = 0
-    Width = 380
-    Height = 369
+    Width = 311
+    Height = 130
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
@@ -81,10 +100,10 @@ object RoToMaPhiServerForm: TRoToMaPhiServerForm
       ParentFont = False
     end
     object ServerStartenBtn: TButton
-      Left = 8
-      Top = 80
-      Width = 97
-      Height = 33
+      Left = 16
+      Top = 83
+      Width = 177
+      Height = 30
       Caption = 'Server starten'
       TabOrder = 0
       OnClick = ServerStartenBtnClick
@@ -118,44 +137,46 @@ object RoToMaPhiServerForm: TRoToMaPhiServerForm
         '8')
     end
     object NeuesSpielBtn: TButton
-      Left = 112
-      Top = 80
+      Left = 216
+      Top = 16
       Width = 81
-      Height = 33
+      Height = 42
       Caption = 'Neues Spiel'
       Enabled = False
       TabOrder = 3
       OnClick = NeuesSpielBtnClick
     end
     object NeueKIBtn: TButton
-      Left = 200
-      Top = 80
-      Width = 105
-      Height = 33
-      Caption = 'Neue KI erzeugen'
+      Left = 216
+      Top = 71
+      Width = 81
+      Height = 42
+      Caption = 'KI hinzuf'#252'gen'
       Enabled = False
       TabOrder = 4
       OnClick = NeueKIBtnClick
     end
-    object UserScrollBox: TScrollBox
-      Left = 8
-      Top = 128
-      Width = 361
-      Height = 233
-      BorderStyle = bsNone
-      Color = cl3DLight
-      ParentColor = False
-      TabOrder = 5
-    end
-    object BeendenBtn: TButton
-      Left = 264
-      Top = 32
-      Width = 75
-      Height = 25
-      Caption = 'Beenden'
-      TabOrder = 6
-      OnClick = BeendenBtnClick
-    end
+  end
+  object SpielerListView: TListView
+    Left = 311
+    Top = 0
+    Width = 210
+    Height = 130
+    Align = alRight
+    Columns = <
+      item
+        Caption = 'Spieler Online'
+        Width = 160
+      end
+      item
+        Alignment = taCenter
+        Caption = 'Karten'
+        Width = 45
+      end>
+    ReadOnly = True
+    RowSelect = True
+    TabOrder = 3
+    ViewStyle = vsReport
   end
   object ServerSocket: TServerSocket
     Active = False
@@ -165,7 +186,7 @@ object RoToMaPhiServerForm: TRoToMaPhiServerForm
     OnClientDisconnect = ServerSocketClientDisconnect
     OnClientRead = ServerSocketClientRead
     OnClientError = ServerSocketClientError
-    Left = 208
-    Top = 16
+    Left = 16
+    Top = 40
   end
 end

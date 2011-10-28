@@ -37,6 +37,9 @@ type
     function GetIDSpielerTo: Longword;
   end;
 
+var
+  SpionageDlg: TSpionageDlg;
+
 implementation
 
 {$R *.dfm}
@@ -53,6 +56,7 @@ procedure TSpionageDlg.SpielerAuflisten(MySelf: TSpieler);
 var i: Integer;
 begin
   AbgebenPanel.Visible := false;
+  SpionagePanel.Visible := true;
   SpielerComboBox1.Clear;
   SpielerComboBox2.Clear;
   TmpListe.Clear;
@@ -74,19 +78,18 @@ begin
 end;
 
 procedure TSpionageDlg.SpionageBtnClick(Sender: TObject);
-const KartenWidth = 100;
-      KartenHeight = 157;
-var   bmp: TBitmap;
+var graphic: TGraphic;
 begin
   SpioKarte := TSpieler(TmpListe.Items[SpielerComboBox1.ItemIndex]).KartenListe.Items[Random(TSpieler(TmpListe.Items[SpielerComboBox1.ItemIndex]).KartenListe.Count)];
-  bmp := TBitmap.Create;
-  bmp.Width := KartenWidth;
-  bmp.Height := KartenHeight;
-  SpioKarte.LoadBitmap(bmp);
-  KarteImage.Picture.Bitmap := bmp;
-  bmp.Free;
+  graphic := SpioKarte.GetImage;
+  try
+    KarteImage.Picture.Graphic := graphic;
+  finally
+    graphic.Free;
+  end;
   Spioniert := true;
   AbgebenPanel.Visible := true;
+  SpionagePanel.Visible := false;
 end;
 
 procedure TSpionageDlg.SpielerComboBox1Change(Sender: TObject);

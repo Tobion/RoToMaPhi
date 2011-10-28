@@ -23,6 +23,9 @@ type
     function GetFarbe: TFarben;
   end;
 
+var
+  WunschDlg: TWunschDlg;
+
 implementation
 
 {$R *.dfm}

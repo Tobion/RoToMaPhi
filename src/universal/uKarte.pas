@@ -3,7 +3,7 @@ unit uKarte;
 interface
 
 uses
-  Graphics, SysUtils, uGlobalTypes;
+  Windows, Graphics, SysUtils, Classes, uGlobalTypes, uResourceAccess;
 
 type
   TKartenEigenschaften = record
@@ -13,7 +13,6 @@ type
     Name: String;                  // Name der Karte
     Farbe: TFarben;                // Farbe der Karte
     Info: String;                  // Beschreibung der Karte
-    ResName: String;               // Resourcenname bestimmt das Kartenbitmap
     SortWert: String;              // Sortierwert
     end;
 
@@ -22,17 +21,19 @@ type
     Eigenschaften: TKartenEigenschaften;
   public
     constructor Create(const InitKarten: TInitKarten);
-    procedure LoadBitmap(bmp: TBitmap);
+    function GetImage: TGraphic;
     function GetID: Longword;
     function GetTyp: Byte;
     function GetName: String;
     function GetFarbe: TFarben;
     function GetInfo: String;
     function GetSortWert: String;
-    procedure SetColor(AFarbe: TFarben);
   end;
 
 const
+  KartenWidth = 100;
+  KartenHeight = 157;
+
   Karten: array[0..16] of TKartenEigenschaften = (
     (Typ: 1; Name: 'Sklave'; Info: ''; SortWert: '001'),
     (Typ: 2; Name: 'Bettler'; Info: ''; SortWert: '002'),
@@ -83,24 +84,20 @@ begin
     Name := Karten[Index].Name;
     Info := Karten[Index].Info;
     case Farbe of
-      Schwarz: begin ResName := 'S'; SortWert := 'A'; end;
-      Rot: begin ResName := 'R'; SortWert := 'B'; end;
-      Gruen: begin ResName := 'G'; SortWert := 'C'; end;
-      Blau: begin ResName := 'B'; SortWert := 'D'; end;
-      Ohne: begin ResName := 'O'; SortWert := 'E'; end;
+      Schwarz: SortWert := 'A';
+      Rot: SortWert := 'B';
+      Gruen: SortWert := 'C';
+      Blau: SortWert := 'D';
+      Ohne: SortWert := 'E';
       end;
-    ResName := ResName + IntToStr(Typ);
     SortWert := SortWert + Karten[Index].SortWert;
     end;
 end;
 
-procedure TKarte.LoadBitmap(bmp: TBitmap);
+
+function TKarte.GetImage: TGraphic;
 begin
-  try
-    bmp.LoadFromResourceName(HInstance, Eigenschaften.ResName);
-  except
-    bmp.Free;
-  end;
+  Result := GetImageFromResource((Integer(GetFarbe) + 1) * 100 + GetTyp, iGIF);
 end;
 
 function TKarte.GetID: Longword;
@@ -133,20 +130,5 @@ begin
   Result := Eigenschaften.SortWert;
 end;
 
-procedure TKarte.SetColor(AFarbe: TFarben);
-begin
-with Eigenschaften do
-  begin
-  Farbe := AFarbe;
-  case Farbe of
-      Schwarz: ResName := 'S';
-      Rot: ResName := 'R';
-      Gruen: ResName := 'G';
-      Blau: ResName := 'B';
-      Ohne: ResName := 'O';
-      end;
-  ResName := ResName + IntToStr(Typ);
-  end;
-end;
 
 end.

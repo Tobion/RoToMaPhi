@@ -3,7 +3,7 @@ object EinloggenDlg: TEinloggenDlg
   Top = 187
   BorderStyle = bsDialog
   Caption = 'Einloggen'
-  ClientHeight = 177
+  ClientHeight = 169
   ClientWidth = 275
   Color = clBtnFace
   ParentFont = True
@@ -15,7 +15,7 @@ object EinloggenDlg: TEinloggenDlg
     Left = 8
     Top = 8
     Width = 257
-    Height = 129
+    Height = 122
     Shape = bsFrame
   end
   object PortLabel: TLabel
@@ -32,8 +32,8 @@ object EinloggenDlg: TEinloggenDlg
     ParentFont = False
   end
   object OKBtn: TButton
-    Left = 55
-    Top = 145
+    Left = 63
+    Top = 136
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -43,8 +43,8 @@ object EinloggenDlg: TEinloggenDlg
     TabOrder = 0
   end
   object CancelBtn: TButton
-    Left = 143
-    Top = 145
+    Left = 144
+    Top = 136
     Width = 75
     Height = 25
     Cancel = True

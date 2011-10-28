@@ -37,6 +37,9 @@ type
     function GetSperre: Byte;
   end;
 
+var
+  SperrDlg: TSperrDlg;
+
 implementation
 
 {$R *.dfm}

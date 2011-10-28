@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{48f3d73f-3a8b-407e-8b6d-1db6a8729d54}</ProjectGuid>
+    <MainSource>pRoToMaPhi.dpr</MainSource>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+    <DCC_DependencyCheckOutputName>pRoToMaPhi.exe</DCC_DependencyCheckOutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_DebugInformation>False</DCC_DebugInformation>
+    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    <DCC_Define>RELEASE</DCC_Define>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Version>7.0</Version>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Delphi.Personality</Borland.Personality>
+    <Borland.ProjectType>VCLApplication</Borland.ProjectType>
+    <BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">True</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1031</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName">RoToMaPhi</VersionInfoKeys><VersionInfoKeys Name="FileDescription">Multiplayer-Kartenspiel</VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright">2005/2006 Tobias Schultze, Robert Stascheit, Manuel Mähl, Philipp Müller</VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName">RoToMaPhi</VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">pRoToMaPhi.dpr</Source></Source></Delphi.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
+  <ItemGroup>
+    <DelphiCompile Include="pRoToMaPhi.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <RcCompile Include="..\universal\Karten.rc">
+      <Form>'..\universal\Karten.res'</Form>
+    </RcCompile>
+    <DCCReference Include="..\universal\uAblagestapel.pas" />
+    <DCCReference Include="..\universal\uGlobalTypes.pas" />
+    <DCCReference Include="..\universal\uKarte.pas" />
+    <DCCReference Include="..\universal\uResourceAccess.pas" />
+    <DCCReference Include="..\universal\uSpieler.pas" />
+    <DCCReference Include="..\universal\uSpielregeln.pas" />
+    <DCCReference Include="..\universal\uZiehstapel.pas" />
+    <DCCReference Include="uEinloggenDlg.pas">
+      <Form>EinloggenDlg</Form>
+    </DCCReference>
+    <DCCReference Include="uEinstellungenDlg.pas">
+      <Form>EinstellungenDlg</Form>
+    </DCCReference>
+    <DCCReference Include="uPlayerInfoDlg.pas">
+      <Form>PlayerInfoDlg</Form>
+    </DCCReference>
+    <DCCReference Include="uRoToMaPhi.pas">
+      <Form>RoToMaPhiForm</Form>
+    </DCCReference>
+    <DCCReference Include="uSperrDlg.pas">
+      <Form>SperrDlg</Form>
+    </DCCReference>
+    <DCCReference Include="uSpionageDlg.pas">
+      <Form>SpionageDlg</Form>
+    </DCCReference>
+    <DCCReference Include="uTauschDlg.pas">
+      <Form>TauschDlg</Form>
+    </DCCReference>
+    <DCCReference Include="uUserPictureDlg.pas">
+      <Form>UserPictureDlg</Form>
+    </DCCReference>
+    <DCCReference Include="uVerwaltung.pas" />
+    <DCCReference Include="uWunschDlg.pas">
+      <Form>WunschDlg</Form>
+    </DCCReference>
+  </ItemGroup>
+</Project>

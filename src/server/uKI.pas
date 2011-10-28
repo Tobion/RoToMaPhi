@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, uKarte, uSpieler, uSpielregeln, uGlobalTypes,
-  uVerwaltung, uProtokoll, uZiehstapel, uAblagestapel;
+  uVerwaltung, uZiehstapel, uAblagestapel;
 
 type
   TKI = class(TSpieler)
@@ -14,7 +14,6 @@ type
     Verwaltung: TVerwaltung;
     Ablagestapel: TAblagestapel;
     Ziehstapel: TZiehstapel;
-    Protokoll: TProtokoll;
     Spielerliste: TList;
     LegbareKarten: TList;
     BesteKartenListe: TList;
@@ -55,7 +54,7 @@ type
   public
     constructor Create(const AID: Longword; const AName: String; AVerwaltung: TVerwaltung;
       ASpielerliste: TList; ASpielregeln: TSpielregeln; AZiehstapel: TZiehstapel;
-      AAblagestapel: TAblagestapel; AProtokoll: TProtokoll);
+      AAblagestapel: TAblagestapel);
     destructor Destroy; override;
     function Spielzug: TKarte;                 // Simuliert den Spielzug der KI und gibt die zu legende Karte aus
     function GetWunschfarbe: TFarben;       // WÜNSCHEN (Sonderfunktion)
@@ -77,7 +76,7 @@ implementation
 
 constructor TKI.Create(const AID: Longword; const AName: String; AVerwaltung: TVerwaltung;
   ASpielerliste: TList; ASpielregeln: TSpielregeln; AZiehstapel: TZiehstapel;
-  AAblagestapel: TAblagestapel; AProtokoll: TProtokoll);
+  AAblagestapel: TAblagestapel);
 begin
   inherited create(AID,AName);
   LegbareKarten := TList.create;
@@ -87,7 +86,6 @@ begin
   Spielregeln := ASpielregeln;
   Ziehstapel := AZiehstapel;
   Ablagestapel := AAblagestapel;
-  Protokoll := AProtokoll;
 end;
 
 destructor TKI.Destroy;
@@ -747,6 +745,7 @@ begin
   Spielerzahl := Spielerliste.Count;
   case OKarte.GetTyp of
   7,12: begin
+        Farbe := Ohne;
         if (Kartenliste.Count=1) and (Spielerzahl > 3) then
           begin
           k := Random(2);
@@ -754,7 +753,9 @@ begin
             0: begin
                i:= Random(4)+196;
                if (i = Spielregeln.Spielzustand.Sperre) then
-                Farbe:= GetSperrfarbe(i);
+                Farbe:= GetSperrfarbe(i)
+               else
+                Farbe := Ohne;
                i:=Random(3);
                case i of
                   0: if Farbe=Schwarz then Farbe:=Blau else Farbe:= Schwarz;
@@ -782,12 +783,13 @@ end;
 
 function TKI.GetSperrFarbe(Index: Integer): TFarben;
 begin
-     case Index of
-      0: Result:= Schwarz;
-      1: Result:= Rot;
-      2: Result:= Gruen;
-      3: Result:= Blau;
-     end;
+  Result := Schwarz;
+  case Index of
+    0: Result:= Schwarz;
+    1: Result:= Rot;
+    2: Result:= Gruen;
+    3: Result:= Blau;
+  end;
 end;
 
 function TKI.BesteVerteidigung(OKarte: TKarte): TFarben;

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls, Buttons,
-  ExtCtrls, Spin;
+  ExtCtrls, Spin, Dialogs, ExtDlgs;
 
 type
   TEinloggenDlg = class(TForm)
@@ -23,6 +23,9 @@ type
     function GetHost: String;
     function GetPort: Integer;
   end;
+
+var
+  EinloggenDlg: TEinloggenDlg;
 
 implementation
 

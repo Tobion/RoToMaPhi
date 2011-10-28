@@ -5,14 +5,14 @@
 { Ein selbsterfundenes Multiplayer-Kartenspiel          }
 { über Internet/Netzwerk spielbar                       }
 {                                                       }
-{ Copyright © 2005/2006                                 }
+{ Copyright © 2008                                      }
 {   Tobias Schultze  (webmaster@tubo-world.de)          }
-{   Robert Stascheit (roberto-online@web.de)            }
-{   Manuel Mähl      (manu@maehls.de)                   }
-{   Philipp Müller   (philippmue@aol.com)               }
+{                                                       }
 { Website: http://www.rotomaphi.de.vu                   }
 {                                                       }
-{ Informatik Jahrgang 13 Herr Willemeit                 }
+{ FHTW Berlin                                           }
+{ Verteilte Systeme                                     }
+{ Sommersemester 2008                                   }
 {                                                       }
 {*******************************************************}
 
@@ -22,9 +22,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls, Menus, Buttons, ScktComp,
-  uEinloggenDlg, uEinstellungenDlg, uWunschDlg, uTauschDlg, uSperrDlg, uSpionageDlg,
-  uVerwaltung, uGlobalTypes, uSpieler;
+  Dialogs, ExtCtrls, StdCtrls, ComCtrls, Menus, Buttons, ScktComp, SyncObjs,
+  uResourceAccess, JPEG, GIFImg, uVerwaltung, uGlobalTypes, uSpieler;
 
 type
   TRoToMaPhiForm = class(TForm)
@@ -38,8 +37,6 @@ type
     ClientSocket: TClientSocket;
     OptionenMenu: TMenuItem;
     EinstellungenMenu: TMenuItem;
-    UntererRandPanel: TPanel;
-    ObererRandPanel: TPanel;
     OberflaechePanel: TPanel;
     BottomContainerPannel: TPanel;
     SpielerListView: TListView;
@@ -48,17 +45,12 @@ type
     MsgSendenSpeedBtn: TSpeedButton;
     MsgEdit: TEdit;
     ChatRichEdit: TRichEdit;
-    ORButtomContainerPanel: TPanel;
     UserKartenPanel: TPanel;
-    LeftKartenPanel: TPanel;
-    RightKartenPanel: TPanel;
     UserScrollBox: TScrollBox;
     TopKartenPanel: TPanel;
     StapelPanel: TPanel;
     BackgroundImage: TImage;
     StatusBar: TStatusBar;
-    LinkerRandPanel: TPanel;
-    RechterRandPanel: TPanel;
     SpielPanel: TPanel;
     KreisShape1: TShape;
     KreisShape2: TShape;
@@ -80,6 +72,7 @@ type
     SperrAnzLabel: TLabel;
     AnzNotwendigerSpielerLabel: TLabel;
     EinloggenLabel: TLabel;
+    MeinAvatarMenu: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure UpdateGUI;
     procedure UserScrollBoxResize(Sender: TObject);
@@ -101,13 +94,11 @@ type
     procedure BackgroundImageClick(Sender: TObject);
     procedure MsgSendenSpeedBtnClick(Sender: TObject);
     procedure MsgEditKeyPress(Sender: TObject; var Key: Char);
+    procedure SpielerListViewDblClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure MeinAvatarMenuClick(Sender: TObject);
   private
-    EinloggenDlg: TEinloggenDlg;
-    EinstellungenDlg: TEinstellungenDlg;
-    WunschDlg: TWunschDlg;
-    TauschDlg: TTauschDlg;
-    SperrDlg: TSperrDlg;
-    SpionageDlg: TSpionageDlg;
+    lCS: TCriticalSection;
     Verwaltung: TVerwaltung;
     SpielerNotwendig: Byte;           // Anzahl der notwendigen Spieler des Spiels
     Ready: Boolean;                   // ob Spieler ready ist
@@ -116,6 +107,7 @@ type
     MySelf: TSpieler;                 // mein eigenes Spielerobjekt
     MyUserID: Longword;               // meine UserID
     MyUserName: String[19];           // mein UserName (max. 19 Zeichen lang)
+    MyPictureFile: String;
     DataStream: TMemoryStream;        // Empfangsstream
 
     procedure Reset;
@@ -127,6 +119,7 @@ type
     function  Game_DecodeMessage(AMessageData: TStream; const MsgID, SenderID: Longword): Boolean;
 
     procedure Help_InitSpieler(AMessageBuffer: TStream);
+    procedure Help_ShowPlayerInfo(AMessageBuffer: TStream; const Spieler: TSpieler);
     procedure Help_InitKarten(AMessageBuffer: TStream);
     procedure Help_InitKartenGemischt(AMessageBuffer: TStream; const Spieler: TSpieler);
     procedure Help_SetReadyStatus(AMessageBuffer: TStream; const Spieler: TSpieler);
@@ -142,6 +135,9 @@ type
     procedure Help_UserQuit(const Spieler: TSpieler);
 
     procedure Net_SendUserName;
+    procedure Net_SendPicture;
+    procedure Net_DeletePicture;
+    procedure Net_GetPlayerInfo(const Spieler: TSpieler);
     procedure Net_SendReadyStatus(Ready: Boolean);
     procedure Net_SendTurn(const GelegteKartenID: Longword);
     procedure Net_SendKarteZiehen;
@@ -158,22 +154,44 @@ var
 
 implementation
 
+uses
+  uEinloggenDlg, uEinstellungenDlg, uUserPictureDlg, uPlayerInfoDlg,
+  uWunschDlg, uTauschDlg, uSperrDlg, uSpionageDlg;
+
 {$R *.dfm}
 
 procedure TRoToMaPhiForm.FormCreate(Sender: TObject);
 begin
-EinloggenDlg := TEinloggenDlg.Create(Self);
-EinstellungenDlg := TEinstellungenDlg.Create(Self);
-WunschDlg := TWunschDlg.Create(Self);
-SperrDlg := TSperrDlg.Create(Self);
-DataStream := TMemoryStream.Create;
-Verwaltung := TVerwaltung.Create;
-TauschDlg := TTauschDlg.Create(Self, Verwaltung);
-SpionageDlg := TSpionageDlg.Create(Self, Verwaltung);
-Reset;
-ZiehstapelImage.Picture.Bitmap.LoadFromResourceName(HInstance, 'Rueckseite0');
-BackGroundImage.Picture.Bitmap.LoadFromResourceName(HInstance, 'Background0');
-EinloggenMenuClick(Sender);
+  lCS := TCriticalSection.Create;
+  DataStream := TMemoryStream.Create;
+  Verwaltung := TVerwaltung.Create;
+  EinloggenDlg := TEinloggenDlg.Create(Self);
+  UserPictureDlg := TUserPictureDlg.Create(Self);
+  EinstellungenDlg := TEinstellungenDlg.Create(Self);
+  PlayerInfoDlg := TPlayerInfoDlg.Create(Self);
+  WunschDlg := TWunschDlg.Create(Self);
+  SperrDlg := TSperrDlg.Create(Self);
+  TauschDlg := TTauschDlg.Create(Self, Verwaltung);
+  SpionageDlg := TSpionageDlg.Create(Self, Verwaltung);
+  Reset;
+  ZiehstapelImage.Picture.Graphic := EinstellungenDlg.GetBackSideImage;
+  BackGroundImage.Picture.Graphic := GetImageFromResource(50 + Random(4), iJPEG);
+  EinloggenMenuClick(Sender);
+end;
+
+procedure TRoToMaPhiForm.FormDestroy(Sender: TObject);
+begin
+  lCS.Free;
+  DataStream.Free;
+  Verwaltung.Free;
+  EinloggenDlg.Free;
+  UserPictureDlg.Free;
+  EinstellungenDlg.Free;
+  PlayerInfoDlg.Free;
+  WunschDlg.Free;
+  SperrDlg.Free;
+  TauschDlg.Free;
+  SpionageDlg.Free;
 end;
 
 procedure TRoToMaPhiForm.Reset;
@@ -193,16 +211,23 @@ end;
 
 procedure TRoToMaPhiForm.SetGUI;
 begin
-EinloggenMenu.Enabled := not LoggedIn;
-AusloggenMenu.Enabled := LoggedIn;
-MsgEdit.ReadOnly := not LoggedIn;
-MsgSendenSpeedBtn.Enabled := LoggedIn;
-UserKartenPanel.Visible := LoggedIn and Verwaltung.GameStarted;
-SpielPanel.Visible := LoggedIn and Verwaltung.GameStarted;
-BackGroundImage.Visible := not Verwaltung.GameStarted;
-AnzNotwendigerSpielerLabel.Visible := LoggedIn and not Verwaltung.GameStarted;
-EinloggenLabel.Visible := not LoggedIn;
-Ready := Verwaltung.GameStarted;
+  EinloggenMenu.Enabled := not LoggedIn;
+  AusloggenMenu.Enabled := LoggedIn;
+  MeinAvatarMenu.Enabled := LoggedIn;
+  MsgEdit.ReadOnly := not LoggedIn;
+  MsgSendenSpeedBtn.Enabled := LoggedIn;
+  UserKartenPanel.Visible := LoggedIn and Verwaltung.GameStarted;
+  SpielPanel.Visible := LoggedIn and Verwaltung.GameStarted;
+  BackGroundImage.Visible := not Verwaltung.GameStarted;
+  AnzNotwendigerSpielerLabel.Visible := LoggedIn and not Verwaltung.GameStarted;
+  EinloggenLabel.Visible := not LoggedIn;
+  Ready := Verwaltung.GameStarted;
+end;
+
+procedure TRoToMaPhiForm.SpielerListViewDblClick(Sender: TObject);
+begin
+if Assigned(SpielerListView.Selected) then
+  Net_GetPlayerInfo(TSpieler(SpielerListView.Selected.Data));
 end;
 
 procedure TRoToMaPhiForm.UpdateGUI;
@@ -214,17 +239,11 @@ with Verwaltung do
   begin
   if Verwaltung.MyTurn(MySelf) then
     begin
-    UserScrollBox.Color := clSilver;
-    TopKartenPanel.Color := clSilver;
-    LeftKartenPanel.Color := clSilver;
-    RightKartenPanel.Color := clSilver;
+    UserKartenPanel.Color := clSilver;
     end
     else
       begin
-      UserScrollBox.Color := cl3DLight;
-      TopKartenPanel.Color := cl3DLight;
-      LeftKartenPanel.Color := cl3DLight;
-      RightKartenPanel.Color := cl3DLight;
+      UserKartenPanel.Color := cl3DLight;
       end;
   TopKartenPanel.Caption := Format('%s: %d Karten', [MySelf.Name, MySelf.CountKarten]);
   MySelf.ShowKarten(UserScrollBox, UserKartenMouseDown);
@@ -272,6 +291,9 @@ with Verwaltung do
   if (GetZiehkartenAnzahl > 0) then
     ZuZiehenLabel.Caption := Format('Zu Ziehen:     %d Karten', [GetZiehkartenAnzahl])
     else ZuZiehenLabel.Caption := 'Zu Ziehen:';
+
+  // sorgt dafür, dass die möglichen Züge angezeigt werden
+  UserKartenMouseDown(Self, mbLeft, [], 0, 0);
   end;
 end
 else
@@ -331,15 +353,12 @@ procedure TRoToMaPhiForm.HilfeMenuClick(Sender: TObject);
 begin
 Application.MessageBox(PChar('*******************************************************'+#10+#10+
 'RoToMaPhi'+#10+#10+
-'Ein selbsterfundenes Multiplayer-Kartenspiel'+#10+
-'über Internet/Netzwerk spielbar'+#10+#10+
-'Copyright © 2005/2006'+#10+
-'   Tobias Schultze   (webmaster@tubo-world.de)'+#10+
-'   Robert Stascheit   (roberto-online@web.de)'+#10+
-'   Manuel Mähl   (manu@maehls.de)'+#10+
-'   Philipp Müller   (philippmue@aol.com)'+#10+#10+
-'Spielregeln siehe Webseite: http://www.rotomaphi.de.vu'+#10+#10+
-'Informatik Jahrgang 13 Alexander-von-Humboldt-Oberschule'+#10+#10+
+'Ein selbsterfundenes Kartenspiel für zwei und mehr Spieler,'+#10+
+'bei dem es darum geht, seine Karten möglichst schnell abzulegen.'+#10+
+'Ähnlich wie Mau-Mau, aber mit neuen Funktionen und eigenem Kartenblatt.'+#10+
+'Es ist über Internet/Netzwerk spielbar und unterstützt auch rudimentäre KI Gegner.'+#10+#10+
+'Copyright © 2008 Tobias Schultze'+#10+
+'FHTW Berlin - Verteilte Systeme - Sommersemester 2008 '+#10+#10+
 '*******************************************************'), 'Hilfe' , MB_ICONINFORMATION);
 end;
 
@@ -349,7 +368,25 @@ with EinstellungenDlg do
   begin
   ShowModal;
   if (ModalResult = mrOK) then
-    ZiehstapelImage.Picture.Bitmap := GetRueckseite;
+    ZiehstapelImage.Picture.Graphic := GetBackSideImage;
+  end;
+end;
+
+procedure TRoToMaPhiForm.MeinAvatarMenuClick(Sender: TObject);
+begin
+with UserPictureDlg do
+  begin
+  ShowModal;
+  if (ModalResult = mrYes) then
+    begin
+    MyPictureFile := GetPicture;
+    Net_SendPicture;
+    end
+  else if (ModalResult = mrNo) then
+    begin
+      Net_DeletePicture;
+    end;
+       
   end;
 end;
 
@@ -394,9 +431,18 @@ procedure TRoToMaPhiForm.UserKartenMouseDown(Sender: TObject;
 var i: Integer;
 begin
   if not CanPlay then Exit;
+
   for i:=UserScrollBox.ControlCount-1 downto 0 do
+  begin
     if (UserScrollBox.Controls[i] is TImage) then
-      UserScrollBox.Controls[i].Top := 20;
+      if Verwaltung.LegenMoeglich(MySelf, UserScrollBox.Controls[i].Tag) then
+        UserScrollBox.Controls[i].Top := PossibilityMarginTop
+      else
+        UserScrollBox.Controls[i].Top := DefaultMarginTop;
+  end;
+
+  if not (Sender is TImage) then Exit;
+  
   if (SelectedKarte = Longword((Sender as TImage).Tag)) then
     begin
     Net_SendTurn((Sender as TImage).Tag);
@@ -404,7 +450,7 @@ begin
     else if Verwaltung.LegenMoeglich(MySelf, (Sender as TImage).Tag) then
       begin
       SelectedKarte := (Sender as TImage).Tag;
-      (Sender as TImage).Top := 0;
+      (Sender as TImage).Top := SelectedMarginTop;
       end
       else SelectedKarte := 0;
 end;
@@ -425,14 +471,33 @@ end;
 
 procedure TRoToMaPhiForm.ClientSocketRead(Sender: TObject; Socket: TCustomWinSocket);
 var nRead: Integer;
-    Buff: array[Word] of Byte;
+    //Buff: array[Word] of Byte;
+    lBuffer: Pointer;
 begin
+  lCS.Enter;
+  try
+    nRead := Socket.ReceiveLength();
+    GetMem(lBuffer, nRead);
+    try
+      Socket.ReceiveBuf(lBuffer^, nRead);
+      DataStream.Position := DataStream.Size;
+      DataStream.WriteBuffer(lBuffer^, nRead);
+    finally
+      FreeMem(lBuffer);
+    end;
+  finally
+    lCS.Leave;
+  end;
+
+  (*
   DataStream.Position := DataStream.Size;
+
   while (Socket.ReceiveLength > 0) do
   begin
     nRead := Socket.ReceiveBuf(Buff, High(Buff) - Low(Buff));
     DataStream.WriteBuffer(Buff, nRead);
   end;
+  *)
 
   while (Net_DecodeMessage) do
     Application.ProcessMessages;
@@ -471,21 +536,21 @@ end;
 procedure TRoToMaPhiForm.Net_RemoveMessage(const ASize : Cardinal);
 var lStream: TMemoryStream;
 begin
-  if (DataStream.Size >= Integer(ASize)) then
+  if (DataStream.Size > Integer(ASize)) then
   begin
     lStream := TMemoryStream.Create;
     try
       DataStream.Position := ASize;
-      if ((DataStream.Size - Integer(ASize)) > 0 ) then
-        lStream.CopyFrom(DataStream, DataStream.Size - Integer(ASize));
+      lStream.CopyFrom(DataStream, DataStream.Size - Integer(ASize));
       DataStream.Size := 0;
       DataStream.CopyFrom(lStream, 0);
+      //DataStream.LoadFromStream(lStream);
     finally
       lStream.Free;
     end;
   end
   else
-    DataStream.Size := 0;
+    DataStream.Size := 0; // DataStream.Clear;
 end;
 
 function  TRoToMaPhiForm.Game_DecodeMessage(AMessageData: TStream; const MsgID, SenderID: Longword): Boolean;
@@ -510,6 +575,11 @@ begin
   Msg_Server_SendSpieler:
     begin
     Help_InitSpieler(AMessageData);
+    Result := true;
+    end;
+  Msg_Server_SendPlayerInfo:
+    begin
+    Help_ShowPlayerInfo(AMessageData, Spieler);
     Result := true;
     end;
   Msg_Server_InitKarten:
@@ -646,6 +716,7 @@ if (MsgEdit.Text <> '') then
 MsgEdit.Clear;
 end;
 
+
 procedure TRoToMaPhiForm.MsgEditKeyPress(Sender: TObject; var Key: Char);
 begin
 if (Ord(Key) = VK_Return) then
@@ -673,6 +744,49 @@ if (SpielerNotwendig - Verwaltung.SpielerOnline > 0) then
     AnzNotwendigerSpielerLabel.Caption := '*** Hier klicken, um das Spiel zu starten.';
 SetGUI;
 UpdateGUI;
+end;
+
+procedure TRoToMaPhiForm.Help_ShowPlayerInfo(AMessageBuffer: TStream; const Spieler: TSpieler);
+var Img: TGraphic ;
+    UserStats: TStats;
+    FileExt: TFileExt;
+    PictureStream: TMemoryStream;
+begin
+  AMessageBuffer.ReadBuffer(UserStats, SizeOf(TStats));
+  AMessageBuffer.ReadBuffer(FileExt, SizeOf(TFileExt));
+
+  if (AMessageBuffer.Position < AMessageBuffer.Size) then
+  begin
+    PictureStream := TMemoryStream.Create;
+    try
+      PictureStream.CopyFrom(AMessageBuffer, AMessageBuffer.Size - AMessageBuffer.Position);
+      PictureStream.Position := 0;
+      if FileExt = 'bmp' then
+        Img := TBitmap.Create
+      else if FileExt = 'jpg' then
+        Img := TJPEGImage.Create
+      else if FileExt = 'gif' then
+        Img := TGIFImage.Create
+      else Img := TBitmap.Create;
+      try
+        Img.LoadFromStream(PictureStream);
+        PlayerInfoDlg.SetImage(Img);
+      finally
+        Img.Free;
+      end;
+    finally
+      PictureStream.Free;
+    end;
+  end
+  else PlayerInfoDlg.SetImage(nil);
+
+  with PlayerInfoDlg do
+  begin
+    SetUserName(Spieler.Name);
+    SetStats(UserStats.Games, UserStats.Wins);
+    SetLastLogin(UserStats.LastLogin);
+    Show;
+  end;
 end;
 
 procedure TRoToMaPhiForm.Help_InitKarten(AMessageBuffer: TStream);
@@ -856,6 +970,55 @@ begin
   Header.SenderID := MyUserID;
   ClientSocket.Socket.SendBuf(Header, SizeOf(THeader));
   ClientSocket.Socket.SendBuf(MyUserName, SizeOf(MyUserName));
+end;
+
+procedure TRoToMaPhiForm.Net_SendPicture;
+var Header: THeader;
+  Stream: TFileStream;
+  FileExt: TFileExt;
+begin
+  FileExt := ExtractFileExt(MyPictureFile);
+  Delete(FileExt, 1, 1); // remove dot
+  if (FileExt <> 'jpeg') and (FileExt <> 'jpg') and (FileExt <> 'gif') and (FileExt <> 'bmp') then
+  begin
+    Application.MessageBox(PChar('Unbekannte Dateiendung.'), 'Fehler' , MB_ICONERROR);
+  end
+  else
+  begin
+    try
+      Stream := TFileStream.Create(MyPictureFile, fmOpenRead);
+      Stream.Position := 0;
+      //Showmessage('Bild senden: ' + IntToStr(Stream.Size));
+      Header.MsgID    := Msg_User_SendPicture;
+      Header.Size := SizeOf(TFileExt) + Stream.Size;
+      Header.SenderID := MyUserID;
+      ClientSocket.Socket.SendBuf(Header, SizeOf(THeader));
+      ClientSocket.Socket.SendBuf(FileExt, SizeOf(TFileExt));
+      ClientSocket.Socket.SendStream(Stream);
+    except
+      on E: EFOpenError do
+        Application.MessageBox(PChar('Datei kann nicht gelesen werden.'), 'Fehler' , MB_ICONERROR);
+    end;
+  end;
+end;
+
+procedure TRoToMaPhiForm.Net_DeletePicture;
+var Header: THeader;
+begin
+  Header.MsgID    := Msg_User_DeletePicture;
+  Header.Size := 0;
+  Header.SenderID := MyUserID;
+  ClientSocket.Socket.SendBuf(Header, SizeOf(THeader));
+end;
+
+procedure TRoToMaPhiForm.Net_GetPlayerInfo(const Spieler: TSpieler);
+var Header: THeader;
+begin
+  Header.MsgID    := Msg_User_GetPlayerInfo;
+  Header.Size     := SizeOf(Spieler.ID);
+  Header.SenderID := MyUserID;
+  ClientSocket.Socket.SendBuf(Header, SizeOf(THeader));
+  ClientSocket.Socket.SendBuf(Spieler.ID, SizeOf(Spieler.ID));
 end;
 
 procedure TRoToMaPhiForm.Net_SendReadyStatus(Ready: Boolean);

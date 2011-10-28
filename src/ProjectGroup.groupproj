@@ -1,0 +1,40 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{3dae5e2d-037b-4865-80c1-821f50a008a7}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup />
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+  <BorlandProject xmlns=""> <Default.Personality> </Default.Personality> </BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="pRoToMaPhi">
+    <MSBuild Projects="client\pRoToMaPhi.dproj" Targets="" />
+  </Target>
+  <Target Name="pRoToMaPhi:Clean">
+    <MSBuild Projects="client\pRoToMaPhi.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="pRoToMaPhi:Make">
+    <MSBuild Projects="client\pRoToMaPhi.dproj" Targets="Make" />
+  </Target>
+  <Target Name="pRoToMaPhiServer">
+    <MSBuild Projects="server\pRoToMaPhiServer.dproj" Targets="" />
+  </Target>
+  <Target Name="pRoToMaPhiServer:Clean">
+    <MSBuild Projects="server\pRoToMaPhiServer.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="pRoToMaPhiServer:Make">
+    <MSBuild Projects="server\pRoToMaPhiServer.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="pRoToMaPhi;pRoToMaPhiServer" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="pRoToMaPhi:Clean;pRoToMaPhiServer:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="pRoToMaPhi:Make;pRoToMaPhiServer:Make" />
+  </Target>
+</Project>

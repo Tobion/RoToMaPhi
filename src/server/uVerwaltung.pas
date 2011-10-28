@@ -4,22 +4,19 @@ interface
 
 uses
   Classes, SysUtils, ExtCtrls, Graphics, ScktComp, ComCtrls,
-  uSpieler, uKarte, uZiehstapel, uAblagestapel, uSpielregeln, uGlobalTypes,
-  uProtokoll;
+  uSpieler, uKarte, uZiehstapel, uAblagestapel, uSpielregeln, uGlobalTypes;
 
 type
   TVerwaltung = class(TObject)
   private
-    SpielerListe: TList;
     Ziehstapel: TZiehstapel;
     Ablagestapel: TAblagestapel;
     Spielregeln: TSpielregeln;
-    Protokoll: TProtokoll;
     WhoseTurn: TSpieler;
     Aussetzen: Boolean;
     RestKarten: Byte;
-    FarbWunsch: TFarben;
   public
+    SpielerListe: TList;
     GameStarted: Boolean;
     constructor Create;
     destructor Destroy; override;
@@ -38,7 +35,6 @@ type
     function KarteAblegen(const Spieler: TSpieler; const KartenID: Longword): Longword;
     function LegenMoeglich(const Spieler: TSpieler; const KartenID: Longword): Boolean;
     procedure ShowSpieler(ListView: TListView);
-    procedure ShowAblagestapel(Image: TImage);
     function GetAblagestapelKartenAnzahl: Integer;
     function GetZiehstapelKartenAnzahl: Integer;
     procedure InitKarten;
@@ -182,7 +178,6 @@ begin
   Ziehstapel := TZiehstapel.Create;
   Ablagestapel := TAblagestapel.Create;
   Spielregeln := TSpielregeln.Create;
-  Protokoll := TProtokoll.Create;
   Randomize;
   Aussetzen := false;
   GameStarted := false;
@@ -225,7 +220,7 @@ end;
 
 function TVerwaltung.NewSpieler(ASocket: TCustomWinSocket): TSpieler;
 begin
-  Result := TSpieler.Create(Random(High(Longword))+1, '', ASocket);
+  Result := TSpieler.Create(Random(High(Integer))+1, '', ASocket);
   SpielerListe.Add(Result);
 end;
 
@@ -233,8 +228,8 @@ function TVerwaltung.NewKI: TSpieler;
 var KI: TKI;
     AID: Longword;
 begin
-  AID := Random(High(Longword))+1;
-  KI := TKI.Create(AID, 'KI '+IntToStr(AID), Self, SpielerListe, Spielregeln, Ziehstapel, Ablagestapel, Protokoll);
+  AID := Random(High(Integer))+1;
+  KI := TKI.Create(AID, 'KI '+IntToStr(AID), Self, SpielerListe, Spielregeln, Ziehstapel, Ablagestapel);
   KI.Ready := true;
   SpielerListe.Add(KI);
   Result := KI;
@@ -355,7 +350,6 @@ if (Ziehkarten > 0) and not Strafe then // Ziehkarten durch Söldner etc.
     else Spieler.KarteAufnehmen(Ziehstapel.PopKarte); // normal eine Karte ziehen
 end;
 RestKarten:=Spieler.CountKarten;
-Protokoll.KarteGezogen(Spieler.Name,Spieler.ID,Restkarten,Spielregeln.Spielzustand.Ziehkarten);
 end;
 
 function TVerwaltung.KarteAblegen(const Spieler: TSpieler; const KartenID: Longword): Longword;
@@ -376,19 +370,16 @@ begin
     10: begin
         if (Spielregeln.Spielzustand.Ziehkarten = 0) then
           Aussetzen := true;
-        Protokoll.Ueberpruefung(Spieler.Name, Spieler.ID, KartenID, Karte.GetTyp, RestKarten, Karte.GetName, Karte.GetFarbe, FarbWunsch);
         end;
     11: Result := Msg_Server_FarbWunsch;
     12: Result := Msg_Server_KartenHalbieren;
     14: Result := Msg_Server_Spionage;
     15: begin
         Result := Msg_Server_Tauschen;
-        Protokoll.Ueberpruefung(Spieler.Name, Spieler.ID, KartenID, Karte.GetTyp, RestKarten, Karte.GetName, Karte.GetFarbe, FarbWunsch);
         end;
     17: Result := Msg_Server_Sperren;
     else begin
          RestKarten:=Spieler.CountKarten;
-         Protokoll.Ueberpruefung(Spieler.Name, Spieler.ID, KartenID, Karte.GetTyp, RestKarten, Karte.GetName, Karte.GetFarbe, FarbWunsch);
          end;
     end;
 
@@ -414,33 +405,6 @@ for i:=0 to SpielerListe.Count-1 do
   else if (TSpieler(SpielerListe.Items[i]) = WhoseTurn) then
     ListItem.Caption := ListItem.Caption + ' (Am Zug)';
   ListItem.SubItems.Add(IntToStr(TSpieler(SpielerListe.Items[i]).CountKarten));
-  end;
-end;
-
-procedure TVerwaltung.ShowAblagestapel(Image: TImage);
-const KartenWidth = 100;
-      KartenHeight = 157;
-var bmp: TBitmap;
-    Karte: TKarte;
-begin
-  bmp := TBitmap.Create;
-  bmp.Width := KartenWidth;
-  bmp.Height := KartenHeight;
-  Karte := TKarte(Ablagestapel.PeekKarte);
-  try
-  if (Karte <> nil) then
-    begin
-    Karte.LoadBitmap(bmp);
-    Image.Picture.Bitmap := bmp;
-    Image.Hint := Karte.GetName;
-    end
-  else
-    begin
-    Image.Hint := '';
-    Image.Picture := nil;
-    end;
-  finally
-  bmp.Free;
   end;
 end;
 
@@ -590,7 +554,6 @@ begin
   Spieler1.KartenListe.Assign(Spieler2.KartenListe);
   Spieler2.KartenListe.Assign(TmpListe);
   TmpListe.Free;
-  Protokoll.KartenGetauscht(Spieler1.Name,Spieler2.Name,Spieler1.ID,Spieler2.ID);
 end;
 
 procedure TVerwaltung.Spionage(const SpielerFrom, SpielerTo: TSpieler; SpioKartenID: Longword);

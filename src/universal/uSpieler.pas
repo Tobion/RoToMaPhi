@@ -34,6 +34,11 @@ type
 
   function CompareKarten(Item1, Item2: Pointer): Integer;
 
+const
+  DefaultMarginTop = 20;
+  PossibilityMarginTop = 13;
+  SelectedMarginTop = 0;
+
 implementation
 
 constructor TSpieler.Create(const AID: Longword; const AName: String; ASocket: TCustomWinSocket = nil);
@@ -102,11 +107,9 @@ begin
 end;
 
 procedure TSpieler.ShowKarten(ScrollBox: TScrollBox; MouseDown: TMouseEvent);
-const KartenWidth = 100;
-      KartenHeight = 157;
-      MaxAbstand = KartenWidth + 5;
+const MaxAbstand = KartenWidth + 5;
       MinAbstand = 20;
-var bmp: TBitmap;
+var graphic: TGraphic;
     Image: TImage;
     i, Abstand, WidthNeeded, xoffset: Integer;
 begin
@@ -122,28 +125,22 @@ begin
   ScrollBox.HorzScrollBar.Visible := (WidthNeeded > ScrollBox.Width + 2);
   for i:=0 to KartenListe.Count-1 do
     begin
-    bmp := TBitmap.Create;
+    graphic := TKarte(KartenListe.Items[i]).GetImage;
     try
-    bmp.Width := KartenWidth;
-    bmp.Height := KartenHeight;
-    TKarte(KartenListe.Items[i]).LoadBitmap(bmp);
-    if (bmp <> nil) then
-    begin
     Image := TImage.Create(ScrollBox);
     with Image do
       begin
       Parent := ScrollBox;
-      SetBounds(xoffset + (i * Abstand),20,KartenWidth,KartenHeight);
-      Picture.Bitmap := bmp;
+      SetBounds(xoffset + (i * Abstand),DefaultMarginTop,KartenWidth,KartenHeight);
+      Picture.Graphic := graphic;
       ShowHint := true;
       Hint := TKarte(KartenListe.Items[i]).GetName + #10 + TKarte(KartenListe.Items[i]).GetInfo;
       Tag := TKarte(KartenListe.Items[i]).GetID;
       OnMouseDown := MouseDown;
       Show;
       end;
-    end;
     finally
-    bmp.Free;
+      graphic.Free;
     end;
     end;
 end;

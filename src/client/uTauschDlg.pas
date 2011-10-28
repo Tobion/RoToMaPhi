@@ -23,6 +23,9 @@ type
     function GetSpieler2: Longword;
   end;
 
+var
+  TauschDlg: TTauschDlg;
+
 implementation
 
 {$R *.dfm}

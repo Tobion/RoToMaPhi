@@ -202,6 +202,7 @@ ListView.Clear;
 for i:=0 to SpielerListe.Count-1 do
   begin
   ListItem := ListView.Items.Add;
+  ListItem.Data := TSpieler(SpielerListe.Items[i]);
   ListItem.Caption := TSpieler(SpielerListe.Items[i]).Name;
   if not GameStarted and TSpieler(SpielerListe.Items[i]).Ready then
     ListItem.Caption := ListItem.Caption + ' (Ready)'
@@ -212,30 +213,25 @@ for i:=0 to SpielerListe.Count-1 do
 end;
 
 procedure TVerwaltung.ShowAblagestapel(Image: TImage);
-const KartenWidth = 100;
-      KartenHeight = 157;
-var bmp: TBitmap;
+var graphic: TGraphic;
     Karte: TKarte;
 begin
-  bmp := TBitmap.Create;
-  bmp.Width := KartenWidth;
-  bmp.Height := KartenHeight;
   Karte := TKarte(Ablagestapel.PeekKarte);
-  try
   if Assigned(Karte) then
     begin
-    Karte.LoadBitmap(bmp);
-    Image.Picture.Bitmap := bmp;
-    Image.Hint := 'Ablagestapel'+#10+'Oberste Karte: '+Karte.GetName;
+    graphic := Karte.GetImage;
+    try
+      Image.Picture.Graphic := graphic;
+      Image.Hint := 'Ablagestapel'+#10+'Oberste Karte: '+Karte.GetName;
+    finally
+      graphic.Free;
+    end;
     end
     else
       begin
       Image.Hint := '';
       Image.Picture := nil;
       end;
-  finally
-  bmp.Free;
-  end;
 end;
 
 function TVerwaltung.GetAblagestapelKartenAnzahl: Integer;

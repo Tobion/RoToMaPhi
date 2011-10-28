@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  Dialogs, StdCtrls, ExtCtrls, uResourceAccess;
 
 type
   TEinstellungenDlg = class(TForm)
@@ -17,8 +17,11 @@ type
     procedure RueckseiteCBChange(Sender: TObject);
   private
   public
-    function GetRueckseite: TBitmap;
+    function GetBackSideImage: TGraphic;
   end;
+
+var
+  EinstellungenDlg: TEinstellungenDlg;
 
 implementation
 
@@ -26,20 +29,17 @@ implementation
 
 procedure TEinstellungenDlg.FormCreate(Sender: TObject);
 begin
-  RueckseiteImage.Picture.Bitmap.LoadFromResourceName(HInstance, 'Rueckseite'+ IntToStr(RueckseiteCB.ItemIndex));
+  RueckseiteImage.Picture.Graphic := GetImageFromResource(1, iGIF);
 end;
 
 procedure TEinstellungenDlg.RueckseiteCBChange(Sender: TObject);
 begin
-  RueckseiteImage.Picture.Bitmap.LoadFromResourceName(HInstance, 'Rueckseite'+ IntToStr(RueckseiteCB.ItemIndex));
+  RueckseiteImage.Picture.Graphic := GetImageFromResource(RueckseiteCB.ItemIndex + 1, iGIF);
 end;
 
-function TEinstellungenDlg.GetRueckseite: TBitmap;
+function TEinstellungenDlg.GetBackSideImage: TGraphic;
 begin
-  Result := TBitmap.Create;
-  Result.LoadFromResourceName(HInstance, 'Rueckseite'+ IntToStr(RueckseiteCB.ItemIndex));
+  Result := GetImageFromResource(RueckseiteCB.ItemIndex + 1, iGIF);
 end;
-
-
 
 end.

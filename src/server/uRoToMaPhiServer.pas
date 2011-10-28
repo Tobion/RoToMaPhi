@@ -5,14 +5,14 @@
 { Ein selbsterfundenes Multiplayer-Kartenspiel          }
 { über Internet/Netzwerk spielbar                       }
 {                                                       }
-{ Copyright © 2005/2006                                 }
+{ Copyright © 2008                                      }
 {   Tobias Schultze  (webmaster@tubo-world.de)          }
-{   Robert Stascheit (roberto-online@web.de)            }
-{   Manuel Mähl      (manu@maehls.de)                   }
-{   Philipp Müller   (philippmue@aol.com)               }
+{                                                       }
 { Website: http://www.rotomaphi.de.vu                   }
 {                                                       }
-{ Informatik Jahrgang 13 Herr Willemeit                 }
+{ FHTW Berlin                                           }
+{ Verteilte Systeme                                     }
+{ Sommersemester 2008                                   }
 {                                                       }
 {*******************************************************}
 
@@ -22,14 +22,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, ScktComp, uVerwaltung,
-  uGlobalTypes, uSpieler, uKI;
+  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, ScktComp, SyncObjs, uVerwaltung,
+  uGlobalTypes, uSpieler, uKI, SQLiteTable3;
 
 type
   TRoToMaPhiServerForm = class(TForm)
     ServerSocket: TServerSocket;
     StatusBar: TStatusBar;
-    SpielerListView: TListView;
+    RegisteredUsersListView: TListView;
     OptionsPanel: TPanel;
     ServerStartenBtn: TButton;
     PortSpinEdit: TSpinEdit;
@@ -38,8 +38,7 @@ type
     SpielerAnzComboBox: TComboBox;
     NeuesSpielBtn: TButton;
     NeueKIBtn: TButton;
-    UserScrollBox: TScrollBox;
-    BeendenBtn: TButton;
+    SpielerListView: TListView;
     procedure FormCreate(Sender: TObject);
     procedure ServerStartenBtnClick(Sender: TObject);
     procedure NeuesSpielBtnClick(Sender: TObject);
@@ -53,9 +52,20 @@ type
       var ErrorCode: Integer);
     procedure ServerSocketClientRead(Sender: TObject;
       Socket: TCustomWinSocket);
-    procedure BeendenBtnClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
+    lCS: TCriticalSection;
     Verwaltung: TVerwaltung;
+    Database: TSQLiteDatabase;
+
+    procedure InitDatabase;
+    procedure DB_SaveUser(const Spieler: TSpieler);
+    procedure DB_SavePicture(AMessageBuffer: TStream; const Spieler: TSpieler);
+    procedure DB_DeletePicture(const Spieler: TSpieler);
+    procedure DB_AddGame;
+    procedure DB_AddWin(const Spieler: TSpieler);
+    procedure ShowRegisteredUsers;
+
     procedure Reset(const SpielerLoeschen: Boolean);
     procedure UpdateGUI;
     procedure CheckStartGame;
@@ -86,6 +96,7 @@ type
     procedure Net_SendGameConfig(const Spieler: TSpieler);
     procedure Net_SendSpielerListe(const Spieler: TSpieler);
     procedure Net_SendUserEnter(const Spieler: TSpieler);
+    procedure Net_SendPlayerInfo(AMessageBuffer: TStream; const Spieler: TSpieler);
     procedure Net_SendInitKarten;
     procedure Net_SendNextPlayer(const Spieler: TSpieler = nil; const AWhoNot: TSpieler = nil);
     procedure Net_SendKartenHalbieren(const Spieler: TSpieler);
@@ -101,14 +112,54 @@ type
 var
   RoToMaPhiServerForm: TRoToMaPhiServerForm;
 
+const
+  DbFileName = 'RoToMaPhi.sqlite';
+  KIDELAY = 1000;
+
 implementation
 
 {$R *.dfm}
 
 procedure TRoToMaPhiServerForm.FormCreate(Sender: TObject);
 begin
+  lCS := TCriticalSection.Create;
   Verwaltung := TVerwaltung.Create;
+  InitDatabase;
   UpdateGUI;
+end;
+
+
+procedure TRoToMaPhiServerForm.FormDestroy(Sender: TObject);
+begin
+  lCS.Free;
+  Verwaltung.Free;
+  Database.Free;
+end;
+
+procedure TRoToMaPhiServerForm.InitDatabase;
+var
+  DBpath: String;
+  sSQL: String;
+begin
+
+  DBPath := ExtractFilepath(Application.exename) + DbFileName;
+  Database := TSQLiteDatabase.Create(DBPath);
+
+  if not Database.TableExists('users') then
+  begin
+    sSQL := 'CREATE TABLE users ( ' +
+      'name VARCHAR(19) PRIMARY KEY, ' +
+      'games INTEGER NOT NULL DEFAULT 0, ' +
+      'wins INTEGER NOT NULL DEFAULT 0, ' +
+      'lastlogin DATETIME NOT NULL DEFAULT "", ' +
+      'pictype CHAR(10) NOT NULL DEFAULT "", ' +
+      'picture BLOB COLLATE NOCASE NULL DEFAULT NULL' +
+      ');';
+    Database.execsql(sSQL);
+  end;
+
+  ShowRegisteredUsers;
+
 end;
 
 procedure TRoToMaPhiServerForm.Reset(const SpielerLoeschen: Boolean);
@@ -154,6 +205,7 @@ begin
       begin
       Net_SendInitKarten;
       Net_SendNextPlayer;
+      DB_AddGame;
       end;
 end;
 
@@ -166,8 +218,13 @@ begin
     begin
     Winner := Verwaltung.GetWinner;
     if Assigned(Winner) then
-      Net_SendWinner(Winner)
-      else Result := false;
+    begin
+      Net_SendWinner(Winner);
+      DB_AddWin(Winner);
+      Reset(false);
+      UpdateGUI;
+    end
+    else Result := false;
     end;
 end;
 
@@ -176,6 +233,7 @@ begin
   Reset(false);
   UpdateGUI;
   Net_SendNeuesSpiel;
+  CheckStartGame;
 end;
 
 procedure TRoToMaPhiServerForm.NeueKIBtnClick(Sender: TObject);
@@ -245,18 +303,40 @@ end;
 procedure TRoToMaPhiServerForm.ServerSocketClientRead(Sender: TObject;
   Socket: TCustomWinSocket);
 var nRead: Integer;
-    OldPos: Int64;
-    Buff: array[Word] of Byte;
+    //Buff: array[Word] of Byte;
     DataStream: TMemoryStream;
+    lBuffer: Pointer;
 begin
   DataStream := Socket.Data;
-  OldPos := DataStream.Position;
+
+  lCS.Enter;
+  try
+    nRead := Socket.ReceiveLength();
+    GetMem(lBuffer, nRead);
+    try
+      Socket.ReceiveBuf(lBuffer^, nRead);
+      DataStream.Position := DataStream.Size;
+      DataStream.WriteBuffer(lBuffer^, nRead);
+    finally
+      FreeMem(lBuffer);
+    end;
+  finally
+    lCS.Leave;
+  end;
+
+  (*
+  try
+
   DataStream.Position := DataStream.Size;
   repeat
     nRead := Socket.ReceiveBuf(Buff, High(Buff) - Low(Buff));
     DataStream.WriteBuffer(Buff, nRead);
   until (Socket.ReceiveLength = 0);
-  DataStream.Position := OldPos;
+
+  except
+    on E: EWriteError do // Stream Schreibfehler abfangen
+  end;
+  *)
 
   while (Net_DecodeMessage(DataStream)) do
     Application.ProcessMessages;
@@ -265,6 +345,13 @@ begin
   -> so lange komplette Nachrichten vorliegen, alle nacheinander bearbeiten }
 end;
 
+(*
+  Es wird der DataStream weiterverarbeitet
+  Wenn ein Packet vollständig empfangen wurde, dann wird Game_DecodeMessage
+  aufegerufen, die anhand der Packet-ID und Nutzdaten die entsprechende Aktion ausführt
+  Dann wird das verarbeitete Packet aus dem Stream gelöscht
+  Return true, wenn im DataStream noch weitere Packete enthalten sind, sonst false
+*)
 function  TRoToMaPhiServerForm.Net_DecodeMessage(DataStream: TStream): Boolean;
 var Header: THeader;
     lMessageData: TMemoryStream;
@@ -278,12 +365,16 @@ begin
     begin
       lMessageData := TMemoryStream.Create;
       try
+      try
         if (Header.Size > 0) then
           lMessageData.CopyFrom(DataStream, Header.Size);
         DataStream.Position := 0;
         Net_RemoveMessage(DataStream, Header.Size + SizeOf(THeader));
         Game_DecodeMessage(lMessageData, Header.MsgID, Header.SenderID);
         Result := (DataStream.Size >= SizeOf(THeader));
+      except
+
+      end;
       finally
         lMessageData.Free;
       end;
@@ -294,13 +385,12 @@ end;
 procedure TRoToMaPhiServerForm.Net_RemoveMessage(DataStream: TStream; const ASize : Cardinal);
 var lStream: TMemoryStream;
 begin
-  if (DataStream.Size >= Integer(ASize)) then
+  if (DataStream.Size > Integer(ASize)) then
   begin
     lStream := TMemoryStream.Create;
     try
       DataStream.Position := ASize;
-      if ((DataStream.Size - Integer(ASize)) > 0 ) then
-        lStream.CopyFrom(DataStream, DataStream.Size - Integer(ASize));
+      lStream.CopyFrom(DataStream, DataStream.Size - Integer(ASize));
       DataStream.Size := 0;
       DataStream.CopyFrom(lStream, 0);
     finally
@@ -323,9 +413,25 @@ begin
   Msg_User_SendName:
     begin
     Help_SetUserName(AMessageData, Spieler);
+    DB_SaveUser(Spieler);
     Net_SendSpielerListe(Spieler);
     Net_SendUserEnter(Spieler);
     UpdateGUI;
+    Result := true;
+    end;
+  Msg_User_SendPicture:
+    begin
+    DB_SavePicture(AMessageData, Spieler);
+    Result := true;
+    end;
+  Msg_User_DeletePicture:
+    begin
+    DB_DeletePicture(Spieler);
+    Result := true;
+    end;
+  Msg_User_GetPlayerInfo:
+    begin
+    Net_SendPlayerInfo(AMessageData, Spieler);
     Result := true;
     end;
   Msg_User_Ready:
@@ -413,12 +519,116 @@ begin
   end;
 end;
 
+
+
 procedure TRoToMaPhiServerForm.Help_SetUserName(AMessageBuffer: TStream; const Spieler: TSpieler);
 var UserName: String[19];
 begin
 AMessageBuffer.ReadBuffer(UserName, SizeOf(UserName));
 Spieler.Name := UserName;
 end;
+
+
+procedure TRoToMaPhiServerForm.DB_SaveUser(const Spieler: TSpieler);
+var sSQL: String;
+  sltb: TSQLIteTable;
+begin
+  sSQL := 'SELECT name FROM users WHERE name = "' + Spieler.Name + '";';
+  sltb := Database.GetTable(sSQL);
+
+  if (sltb.Count = 0) then
+  begin
+    sSQL := 'INSERT INTO users (name, lastlogin) VALUES ("' + Spieler.Name + '", datetime("now"));';
+    Database.ExecSQL(sSQL);
+  end
+  else
+  begin
+    sSQL := 'UPDATE users SET lastlogin = datetime("now") WHERE name = "' + Spieler.Name + '";';
+    Database.ExecSQL(sSQL);
+  end;
+
+  ShowRegisteredUsers;
+end;
+
+procedure TRoToMaPhiServerForm.DB_SavePicture(AMessageBuffer: TStream; const Spieler: TSpieler);
+var FileExt: TFileExt;
+    PictureStream: TMemoryStream;
+begin
+  AMessageBuffer.ReadBuffer(FileExt, SizeOf(TFileExt));
+  //Showmessage('Bild speichern: ' + IntToStr(AMessageBuffer.Size) + ' (' + FileExt + ')');
+  PictureStream := TMemoryStream.Create;
+  try
+    PictureStream.CopyFrom(AMessageBuffer, AMessageBuffer.Size - AMessageBuffer.Position);
+    PictureStream.Position := 0;
+    Database.UpdateBlob('UPDATE users SET pictype = "' + FileExt + '", picture = ? WHERE name = "' + Spieler.Name + '"', PictureStream);
+  finally
+     PictureStream.Free;
+  end;
+  ShowRegisteredUsers;
+end;
+
+procedure TRoToMaPhiServerForm.DB_DeletePicture(const Spieler: TSpieler);
+begin
+  Database.ExecSQL('UPDATE users SET pictype = "", picture = NULL WHERE name = "' + Spieler.Name + '"');
+  ShowRegisteredUsers;
+end;
+
+procedure TRoToMaPhiServerForm.DB_AddGame;
+var sSQL: String;
+  i: Integer;
+begin
+for i := 0 to Verwaltung.SpielerListe.Count - 1 do
+  begin
+    sSQL := 'UPDATE users SET games = games + 1 WHERE name = "' + TSpieler(Verwaltung.SpielerListe.Items[i]).Name + '";';
+    Database.ExecSQL(sSQL);
+  end;
+  ShowRegisteredUsers;
+end;
+
+procedure TRoToMaPhiServerForm.DB_AddWin(const Spieler: TSpieler);
+var sSQL: String;
+begin
+  sSQL := 'UPDATE users SET wins = wins + 1 WHERE name = "' + Spieler.Name + '";';
+  Database.ExecSQL(sSQL);
+  ShowRegisteredUsers;
+end;
+
+
+procedure TRoToMaPhiServerForm.ShowRegisteredUsers;
+var sSQL: String;
+  sltb: TSQLIteTable;
+  i: Integer;
+  ListItem: TListItem;
+begin
+RegisteredUsersListView.Clear;
+
+sSQL := 'SELECT *, IFNULL(LENGTH(picture), 0) as picsize, ' +
+    'ROUND(IFNULL(CAST(wins AS real) / CAST(games AS real) * 100, 0), 1) AS winpercent ' +
+    'FROM users ORDER BY lastlogin DESC';
+sltb := Database.GetTable(sSQL);
+try
+
+for i:=0 to sltb.Count - 1 do
+begin
+  ListItem := RegisteredUsersListView.Items.Add;
+  ListItem.Caption := sltb.FieldAsString(sltb.FieldIndex['name']);
+  ListItem.SubItems.Add(IntToStr(sltb.FieldAsInteger(sltb.FieldIndex['games'])));
+  ListItem.SubItems.Add(
+    sltb.FieldAsString(sltb.FieldIndex['wins']) + ' (' +
+    sltb.FieldAsString(sltb.FieldIndex['winpercent']) + ' %)'
+  );
+  ListItem.SubItems.Add(sltb.FieldAsString(sltb.FieldIndex['lastlogin']));
+  ListItem.SubItems.Add(sltb.FieldAsString(sltb.FieldIndex['picsize']));
+  ListItem.SubItems.Add(sltb.FieldAsString(sltb.FieldIndex['pictype']));
+  sltb.next();
+end;
+
+finally
+  sltb.Free;
+end;
+
+end;
+
 
 procedure TRoToMaPhiServerForm.Help_SetReadyStatus(AMessageBuffer: TStream; const Spieler: TSpieler);
 var Ready: Boolean;
@@ -525,6 +735,62 @@ begin
   end;
 end;
 
+// Spieler ist der, der die Anfrage stellt
+procedure TRoToMaPhiServerForm.Net_SendPlayerInfo(AMessageBuffer: TStream; const Spieler: TSpieler);
+var InfoAboutWhom: Longword;
+    PlayerInfo: TSpieler;
+    sSQL: String;
+    sltb: TSQLIteTable;
+    Stats: TStats;
+    FileExt: TFileExt;
+    PlayerInfoStream: TMemoryStream;
+    PictureStream: TMemoryStream;
+begin
+  // über wenn sollen Informationen gesendet werden
+  AMessageBuffer.ReadBuffer(InfoAboutWhom, SizeOf(InfoAboutWhom));
+  PlayerInfo := Verwaltung.GetSpieler(InfoAboutWhom);
+
+  if not (PlayerInfo is TKI) then   // nur wenn der Spieler keine KI ist senden
+  begin
+
+  // Datenbank abfragen
+  sSQL := 'SELECT * FROM users WHERE name = "' + PlayerInfo.Name + '";';
+  sltb := Database.GetTable(sSQL);
+
+  PlayerInfoStream := TMemoryStream.Create;
+
+  try
+
+  if (sltb.Count > 0) then
+  begin
+    Stats.Games := sltb.FieldAsInteger(sltb.FieldIndex['games']);
+    Stats.Wins := sltb.FieldAsInteger(sltb.FieldIndex['wins']);
+    Stats.LastLogin := sltb.FieldAsString(sltb.FieldIndex['lastlogin']);
+    FileExt := sltb.FieldAsString(sltb.FieldIndex['pictype']);
+    // Statistiken in Stream schreiben
+    PlayerInfoStream.WriteBuffer(Stats, SizeOf(TStats));
+    // Bildtyp (jpg, bmp, gif) in den Stream schreiben, damit der Client
+    // weiß, was für ein Bild er aus dem Stream erstellen muss
+    PlayerInfoStream.WriteBuffer(FileExt, SizeOf(TFileExt));
+
+    PictureStream := sltb.FieldAsBlob(sltb.FieldIndex['picture']);
+    // wenn ein Bild gespeichert ist, dann füge es an Ende des Streams
+    if Assigned(PictureStream) then
+    begin
+      PlayerInfoStream.CopyFrom(PictureStream, 0);
+    end;
+    //Showmessage('Nutzer Info von ' + PlayerInfo.Name + ': ' + IntToStr(PlayerInfoStream.Size));
+    Net_SendToUser(PlayerInfoStream, Spieler, Msg_Server_SendPlayerInfo, PlayerInfo.ID);
+  end;
+
+  finally
+    PlayerInfoStream.Free;
+    sltb.Free; // also frees PictureStream
+  end;
+
+  end;
+end;
+
 procedure TRoToMaPhiServerForm.Net_SendInitKarten;
 var Data: TMemoryStream;
 begin
@@ -556,15 +822,23 @@ begin
   if (NextSpieler is TKI) then  // nächster Spieler ist eine KI
     begin
       try
-        //showmessage(IntToStr(NextSpieler.ID));
+
+      try
         UpdateGUI;
-        NextSpieler.ShowKarten(UserScrollBox, nil);
-        Delay(1000);
+        //NextSpieler.ShowKarten(UserScrollBox, nil);
+        Delay(KIDELAY);
         DoKIZug(NextSpieler as TKI);
+      except
+        on E: EAccessViolation do
+        // Access violation abfangen, falls Server wärend des Delays geschlossen wurde
+      end;
+
       finally
         if not CheckGameOver then
           Net_SendNextPlayer(NextSpieler, AWhoNot);
       end;
+
+
 
     end;
 end;
@@ -595,8 +869,6 @@ end;
 procedure TRoToMaPhiServerForm.Net_SendWinner(const Spieler: TSpieler);
 begin
   Net_SendToAll(nil, Msg_Server_Winner, Spieler.ID);
-  Reset(false);
-  UpdateGUI;
 end;
 
 procedure TRoToMaPhiServerForm.Net_SendNeuesSpiel;
@@ -674,7 +946,11 @@ var KartenID: Longword;
 begin
   KartenID := Verwaltung.KISpielzug(AKI); // welche KartenID will KI legen?
   if (KartenID = 0) then
-    Net_SendToAll(nil, Msg_User_KarteZiehen, AKI.ID) // KI hat gezogen
+  begin
+    Net_SendToAll(nil, Msg_User_KarteZiehen, AKI.ID); // KI hat gezogen
+    if (Verwaltung.GetZiehstapelKartenAnzahl = 0) then
+      Net_SendKartenGemischt(AKI.ID);
+  end
   else
     DoKIKarteLegen(AKI, KartenID);        // KI will eine Karte ablegen
 end;
@@ -779,10 +1055,5 @@ begin
   end;
 end;
 
-procedure TRoToMaPhiServerForm.BeendenBtnClick(Sender: TObject);
-begin
-  Verwaltung.Free;
-  Self.Close;
-end;
 
 end.

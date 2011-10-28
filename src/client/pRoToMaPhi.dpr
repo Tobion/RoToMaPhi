@@ -19,7 +19,10 @@ uses
   uTauschDlg in 'uTauschDlg.pas' {TauschDlg},
   uSperrDlg in 'uSperrDlg.pas' {SperrDlg},
   uEinstellungenDlg in 'uEinstellungenDlg.pas' {EinstellungenDlg},
-  uSpionageDlg in 'uSpionageDlg.pas' {SpionageDlg};
+  uSpionageDlg in 'uSpionageDlg.pas' {SpionageDlg},
+  uPlayerInfoDlg in 'uPlayerInfoDlg.pas' {PlayerInfoDlg},
+  uUserPictureDlg in 'uUserPictureDlg.pas' {UserPictureDlg},
+  uResourceAccess in '..\universal\uResourceAccess.pas';
 
 {$R *.res}
 
